@@ -29,8 +29,9 @@ class Login extends React.Component {
     }
   }
 
+
   onLoginPressed() {
-    var email = this.state.emailInput;
+    var email = this.state.username;
     var password = this.state.password;
 
     Store.login(email, password).then((success) => {
@@ -44,6 +45,11 @@ class Login extends React.Component {
   }
 
 
+  focusNextField = (nextField) => {
+    this.refs[nextField].focus();
+  };
+
+
   render() {
     return (
         <View style={styles.container}>
@@ -53,22 +59,27 @@ class Login extends React.Component {
             </View>
             <View style={styles.inputs}>
                 <View style={styles.inputContainer}>
-                    <Image style={styles.inputUsername} source={{uri: 'http://i.imgur.com/iVVVMRX.png'}}/>
                     <TextInput
-                        style={[styles.input, styles.whiteFont]}
-                        placeholder="Username"
-                        placeholderTextColor="#FFF"
-                        value={this.state.username}
-                    />
+                        ref="1"
+                        style={styles.singleLine}
+                        placeholder="User"
+                        onChangeText={(username) => this.setState({username})}
+                        value = {this.state.username}
+                        returnKeyType="next"
+                        blurOnSubmit={false}
+                        onSubmitEditing={() => this.focusNextField('2')}
+                      />
                 </View>
                 <View style={styles.inputContainer}>
-                    <Image style={styles.inputPassword} source={{uri: 'http://i.imgur.com/ON58SIG.png'}}/>
                     <TextInput
-                        password={true}
-                        style={[styles.input, styles.whiteFont]}
-                        placeholder="Pasword"
-                        placeholderTextColor="#FFF"
-                        value={this.state.password}
+                      ref="2"
+                      style={styles.singleLine}
+                      placeholder="Password"
+                      onChangeText={(password) => this.setState({password})}
+                      value = {this.state.password}
+                      returnKeyType="next"
+                      blurOnSubmit={false}
+                      onSubmitEditing={() => this.focusNextField('2')}
                     />
                 </View>
                 <View style={styles.forgotContainer}>
@@ -93,6 +104,7 @@ class Login extends React.Component {
     );
   }
 };
+
 
 var styles = StyleSheet.create({
     container: {
@@ -133,12 +145,12 @@ var styles = StyleSheet.create({
         flex: .25
     },
     inputPassword: {
-        marginLeft: 15,
+        //marginLeft: 15,
         width: 20,
         height: 21
     },
     inputUsername: {
-      marginLeft: 15,
+      //marginLeft: 15,
       width: 20,
       height: 20
     },
@@ -163,10 +175,11 @@ var styles = StyleSheet.create({
     greyFont: {
       color: '#D8D8D8'
     },
-    whiteFont: {
-      //color: '#FFF'
-      color: 'black'
-    }
+    singleLine: {
+      fontSize: 16,
+      padding: 4,
+      height: 20
+    },
 })
 
 module.exports = Login;

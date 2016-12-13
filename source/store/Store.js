@@ -18,11 +18,10 @@ module.exports = {
    login: function(username, password) {
 
       return new Promise((RESOLVE, REJECT) => {
-        var username = "Lar";
 
         var form = new FormData();
-        form.append('username', 'Lar');
-        form.append('password', 1234);
+        form.append('username', username);
+        form.append('password', password);
 
         fetch("http://localhost/login.php",
          {
@@ -30,13 +29,13 @@ module.exports = {
             body: form
          }).then((response) => {
 
-               response.json().then((respObj) => {
-                  if(respObj.success == 1){
+           response.json().then((respObj) => {
 
-                     return RESOLVE(true);
-                  };
-               });
-          //  }
+             if(respObj.success == 1){
+
+               return RESOLVE(true);
+             };
+           });
          }, (error) =>{
             return REJECT(error);
          });
