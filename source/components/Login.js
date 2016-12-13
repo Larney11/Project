@@ -24,29 +24,53 @@ class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
-      password: ''
+      username: "",
+      password: "",
+      errorText: "",
+      showErrorText: false
     }
   }
 
 
   onLoginPressed() {
-    var email = this.state.username;
+    var username = this.state.username;
     var password = this.state.password;
 
-    Store.login(email, password).then((success) => {
-      this.props.navigator.push({
-        title: "Map",
-        component: Map
+    if((username == "") || (password == "")) {
+      this.setState({
+        errorText: "Must enter username and password.",
+        showErrorText: true
       });
-    },(reason) => {
-      console.log("Error", reason);
-    });
-  }
+    }
+    else {
+
+      Store.login(username, password).then((success) => {
+        this.props.navigator.push({
+          title: "Map",
+          component: Map
+        });
+      },(reason) => {
+        console.log("Error", reason);
+      });
+    };
+  };
 
 
   focusNextField = (nextField) => {
     this.refs[nextField].focus();
+  };
+
+
+  _renderErrorMessage() {
+
+    if(this.state.showErrorText) {
+      return (
+        <Text style={styles.errorText}>{this.state.errorText}</Text>
+      )
+    }
+    else{
+      null;
+    }
   };
 
 
@@ -82,12 +106,13 @@ class Login extends React.Component {
                       onSubmitEditing={() => this.focusNextField('2')}
                     />
                 </View>
+                {this._renderErrorMessage()}
                 <View style={styles.forgotContainer}>
                     <Text style={styles.greyFont}>Forgot Password</Text>
                 </View>
             </View>
               <TouchableHighlight style={styles.button}
-                underlayColor='#99d9f4'
+                underlayColor='#70db70'
                 onPress={this.onLoginPressed.bind(this)}
                 >
                 <View style={styles.signin}>
@@ -180,6 +205,12 @@ var styles = StyleSheet.create({
       padding: 4,
       height: 20
     },
+    errorText: {
+      color: "#e62e00", //red
+      fontSize: 14,
+      paddingLeft: 15,
+      paddingTop: 5
+    }
 })
 
 module.exports = Login;
