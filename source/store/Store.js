@@ -31,7 +31,11 @@ module.exports = {
 
            response.json().then((respObj) => {
 
-             if(respObj.success == 1){
+             if(respObj.status == 404) {
+
+               return REJECT(false);
+             }
+             else if(respObj.status == 200){
 
                return RESOLVE(true);
              };

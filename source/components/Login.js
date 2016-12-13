@@ -50,7 +50,10 @@ class Login extends React.Component {
           component: Map
         });
       },(reason) => {
-        console.log("Error", reason);
+        this.setState({
+          errorText: "Incorrect username or password.",
+          showErrorText: true
+        });
       });
     };
   };

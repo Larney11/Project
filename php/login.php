@@ -25,15 +25,14 @@ if(isset($_POST['username']))
           $user["password"] = $result["password"];
 
           $response["success"] = 1;
-
-          $response["user"] = array();
-
-          array_push($response["user"], $user);
+          $response["status"] = 200;
+          $response["message"] = "User found";
 
           echo json_encode($response);
       } else {
           $response["success"] = 0;
-          $response["message"] = "No user found";
+          $response["status"] = 404;
+          $response["message"] = "User not found";
 
           echo json_encode($response);
       }
