@@ -7,6 +7,7 @@ require_once __DIR__ . '/db_connect.php';
 // connecting to db
 $db = new DB_CONNECT();
 
+// Checks for required field
 if(isset($_POST['username']))
 {
   $username = $_POST['username'];
@@ -16,18 +17,14 @@ if(isset($_POST['username']))
 
   if (!empty($result)) {
 
+      // If result has returned a row
       if (mysql_num_rows($result) > 0) {
-
-          $result = mysql_fetch_array($result);
-
-          $user = array();
-          $user["username"] = $result["username"];
-          $user["password"] = $result["password"];
 
           $response["success"] = 1;
           $response["status"] = 200;
           $response["message"] = "User found";
 
+          // returns response in JSON format
           echo json_encode($response);
       } else {
           $response["success"] = 0;
