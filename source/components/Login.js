@@ -45,6 +45,11 @@ class Login extends React.Component {
     else {
 
       Store.login(username, password).then((success) => {
+
+        this.setState({
+          errorText: "",
+          showErrorText: false
+        });
         this.props.navigator.push({
           title: "Map",
           component: Map

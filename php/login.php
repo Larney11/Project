@@ -8,7 +8,7 @@ require_once __DIR__ . '/db_connect.php';
 $db = new DB_CONNECT();
 
 // Checks for required field
-if(isset($_POST['username']))
+if(isset($_POST['username']) && isset($_POST['password']))
 {
   $username = $_POST['username'];
   $password = $_POST['password'];
@@ -33,6 +33,13 @@ if(isset($_POST['username']))
 
           echo json_encode($response);
       }
+    }
+    else {
+      $response["success"] = 0;
+      $response["status"] = 404;
+      $response["message"] = "User not found";
+
+      echo json_encode($response);
     }
 }
 ?>

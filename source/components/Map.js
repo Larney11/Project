@@ -51,9 +51,9 @@ class Map extends Component {
 
       const { routeCoordinates, distanceTravelled } = this.state
       const newLatLngs = {latitude: position.coords.latitude, longitude: position.coords.longitude }
-      const positionLatLngs = pick(position.coords, ['latitude', 'longitude'])
+
       this.setState({
-        routeCoordinates: routeCoordinates.concat(positionLatLngs),
+        routeCoordinates: routeCoordinates.concat(newLatLngs),
         distanceTravelled: distanceTravelled + this.calcDistance(newLatLngs),
         prevLatLng: newLatLngs
       })
