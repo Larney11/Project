@@ -1,14 +1,12 @@
-
+/***************************************************************************************
+*    Title: Run-Rabbit-Run
+*    Author: LennyBoyatzis
+*    Date: 12/Nov/2016
+*    Availability: https://github.com/LennyBoyatzis/Run-Rabbit-Run/blob/master/index.ios.js
+***************************************************************************************/
 /**
  * @flow
  */
-
-   /***************************************************************************************
-  *    Title: Run-Rabbit-Run
-  *    Author: LennyBoyatzis
-  *    Date: 12/Nov/2016
-  *    Availability: https://github.com/LennyBoyatzis/Run-Rabbit-Run/blob/master/index.ios.js
-  ***************************************************************************************/
 
 import React, { Component } from 'react'
 import {

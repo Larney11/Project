@@ -30,6 +30,7 @@ module.exports = {
          }).then((response) => {
 
            response.json().then((respObj) => {
+             console.log("-----------",respObj);
 
              if(respObj.status == 404) {
 

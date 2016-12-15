@@ -80,9 +80,9 @@ class Login extends React.Component {
   render() {
     return (
         <View style={styles.container}>
-            <Image style={styles.bg} source={{uri: 'http://i.imgur.com/xlQ56UK.jpg'}} />
+            <Image style={styles.background} source={require('../../Resources/img/loginBackground.jpg')} />
             <View style={styles.header}>
-                <Image style={styles.mark} source={{uri: 'http://i.imgur.com/da4G0Io.png'}} />
+                <Image style={styles.mark} source={require('../../Resources/img/running-feet.jpg')} />
             </View>
             <View style={styles.inputs}>
                 <View style={styles.inputContainer}>
@@ -140,7 +140,7 @@ var styles = StyleSheet.create({
       flex: 1,
       backgroundColor: 'transparent'
     },
-    bg: {
+    background: {
         position: 'absolute',
         left: 0,
         top: 0,
@@ -186,7 +186,8 @@ var styles = StyleSheet.create({
         padding: 10,
         borderWidth: 1,
         borderBottomColor: '#CCC',
-        borderColor: 'transparent'
+        borderColor: 'transparent',
+        backgroundColor: 'white'
     },
     input: {
         position: 'absolute',
@@ -206,7 +207,8 @@ var styles = StyleSheet.create({
     singleLine: {
       fontSize: 16,
       padding: 4,
-      height: 20
+      height: 20,
+      backgroundColor: 'white',
     },
     errorText: {
       color: "#e62e00", //red
