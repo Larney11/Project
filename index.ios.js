@@ -5,6 +5,9 @@
  var React = require('react');
  var ReactNative = require('react-native');
  var Login = require('./source/components/Login.js');
+ var MapV = require('./source/components/MapV.js');
+
+
 
 class Project extends React.Component {
   render() {
@@ -12,8 +15,10 @@ class Project extends React.Component {
       <ReactNative.NavigatorIOS
         style={styles.container}
         initialRoute={{
-          title: 'Login',
-          component: Login
+          //title: 'Login',
+          //component: Login
+          title: 'MapV',
+          component: MapV
         }}/>
     );
   }

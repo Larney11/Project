@@ -18,7 +18,7 @@ var {
 } = React;
 
 var Store = require('../store/Store.js');
-var Map = require('./Map.js');
+var MapV = require('./MapV.js');
 
 class Login extends React.Component {
    constructor(props) {
@@ -50,8 +50,8 @@ class Login extends React.Component {
                showErrorText: false
             });
             this.props.navigator.push({
-               title: "Map",
-               component: Map
+               title: "MapV",
+               component: MapV
             });
          },(reason) => {
             this.setState({
