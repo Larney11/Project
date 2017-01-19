@@ -49,18 +49,15 @@
       },
 
 
-      uploadRoute: function(username, password) {
+      uploadRoute: function(formData) {
 
          return new Promise((RESOLVE, REJECT) => {
 
-            var data = new FormData();
-            //form.append('username', username);
-            //form.append('password', password);
 
             fetch("http://localhost/upload_route.php",
             {
                method: 'POST',
-               body: form
+               body: formData
             }).then((response) => {
 
                response.json().then((respObj) => {
