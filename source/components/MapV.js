@@ -35,43 +35,53 @@ class MapV extends Component {
 
       super(props)
       this.state = {
+
+         initialPosition: {longitude:-122.03036811, latitude:37.33045921, latitudeDelta:0.0922, longitudeDelta:0.0421},
          routeCoordinates: [],
-         distanceTravelled: 0,
-         prevLatLng: {}
+         /*[
+            { longitude: -122.08732093, latitude: 37.3396502 },
+            { longitude: -122.08856086, latitude: 37.34031484 },
+            { longitude: -122.08983097, latitude: 37.34092739 },
+            { longitude: -122.09108423, latitude: 37.34154237 },
+            { longitude: -122.092223, latitude:  37.34229154},
+            { longitude: -122.09320284, latitude: 37.34312416 },
+         ],*/
       }
    }
 
+   watchID: ?number = null;
 
    componentDidMount() {
-      // Gets current location
+
       navigator.geolocation.getCurrentPosition((position) => {
 
-      }
-      ,(error) => alert(error.message),
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000})
-      // Invokes whenever location changes
-      this.watchID = navigator.geolocation.watchPosition((position) => {
-
-         const { routeCoordinates, distanceTravelled } = this.state
-         const newLatLngs = {latitude: position.coords.latitude, longitude: position.coords.longitude }
+         var initialPosition = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0.0922,longitudeDelta: 0.0421};
+         var routeCoordinatess = {longitude:position.coords.longitude,latitude:position.coords.latitude};
 
          this.setState({
-            routeCoordinates: routeCoordinates.concat(newLatLngs),
-            distanceTravelled: distanceTravelled + this.calcDistance(newLatLngs),
-            prevLatLng: newLatLngs
-         })
+            initialPosition: initialPosition,
+            routeCoordinates: this.state.routeCoordinates.concat(routeCoordinatess)
+         });
+
+
+      },(error) => alert(JSON.stringify(error)),
+         {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
+      );
+
+      this.watchID = navigator.geolocation.watchPosition((position) => {
+
+         var currentCoordinate = {longitude:position.coords.longitude,latitude:position.coords.latitude};
+         this.setState({
+            routeCoordinates: this.state.routeCoordinates.concat(currentCoordinate)
+         });
       });
    }
 
+
    // Stops trackng position when closed
    componentWillUnmount() {
-      navigator.geolocation.clearWatch(this.watchID);
-   }
 
-   // Calculates distance travelled
-   calcDistance(newLatLng) {
-      const { prevLatLng } = this.state
-      return (haversine(prevLatLng, newLatLng) || 0)
+      navigator.geolocation.clearWatch(this.watchID);
    }
 
 
@@ -82,23 +92,48 @@ class MapV extends Component {
       });
    };
 
+
+   /*
+   <MapView
+      style={styles.map}
+      mapType='satellite'
+      showsUserLocation={true}
+      followUserLocation={true}
+      overlays={[{
+         coordinates: this.state.routeCoordinates,
+         strokeColor: '#19B5FE',
+         lineWidth: 10,
+      }]}
+   />
+
+   {
+      latitude: 53.288804,
+      longitude: -6.3557063,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+   }
+
+   */
+
    render() {
+
       return (
          <View style={styles.container}>
             <MapView
                style={styles.map}
-               mapType='satellite'
+               region={this.state.initialPosition}
                showsUserLocation={true}
-               followUserLocation={true}
-               overlays={[{
-                  coordinates: this.state.routeCoordinates,
-                  strokeColor: '#19B5FE',
-                  lineWidth: 10,
-               }]}
-            />
-            <View style={styles.navBar}>
-               <Text style={styles.navBarText}>Route Tracker</Text>
-            </View>
+            >
+
+                <MapView.Polyline
+                  coordinates={this.state.routeCoordinates}
+                  strokeColor="#000"
+                  fillColor="rgba(255,0,0,0.5)"
+                  strokeWidth={4}
+                />
+
+            </MapView>
+
             <View style={styles.bottomBar}>
                <TouchableHighlight style={styles.bottomBarGroup}
                   underlayColor='#70db70'
@@ -173,3 +208,36 @@ const styles = StyleSheet.create({
 })
 
 module.exports = MapV;
+
+
+/*
+2017-01-19 14:17:46.165 [info][tid:com.facebook.react.JavaScript]
+'=======lastPosition',
+'{
+   "coords":{
+      "speed":5.8,
+      "longitude":-122.03036811,
+      "latitude":37.33045921,
+      "accuracy":5,
+      "heading":103.28,
+      "altitude":0,
+      "altitudeAccuracy":-1
+   },
+   "timestamp":1484835466161.885
+}'
+
+2017-01-19 14:20:15.434 [info][tid:com.facebook.react.JavaScript]
+'=======lastPosition',
+'{
+   "coords":{
+      "speed":5.05,
+      "longitude":-122.02355883,
+      "latitude":37.33292302,
+      "accuracy":10,
+      "heading":348.03,
+      "altitude":0,
+      "altitudeAccuracy":-1
+   },
+   "timestamp":1484835615429.096
+}'
+*/
