@@ -10,6 +10,8 @@
       AsyncStorage,
    } = ReactNative;
 
+   var Route = require('./../class/Route.js')
+
    var Store = function() {};
 
    module.exports = {
@@ -83,6 +85,41 @@
             });
          });
       },
+
+
+            getRoutes: function() {
+
+               return new Promise((RESOLVE, REJECT) => {
+
+                  fetch("http://localhost/register_route.php?route_id=1",
+                  {
+                     method: 'GET',
+                     headers: {
+                       'Content-Type': 'application/json',
+                     }
+                  }).then((response) => {
+
+                     response.json().then((routes) => {
+
+                        //if(routes.status == 404) {
+                          // return REJECT(false);
+                        //}
+                        //else if(routes.status == 200) {
+
+                          var routesArray = [];
+                          for (var i = 0, len = routes.length; i < len; i++) {
+                             routesArray.push(new Route(routes[i]));
+                          };
+
+                          return RESOLVE(routesArray);
+                        //};
+                     });
+                  }, (error) => {
+                     return REJECT(error);
+                  });
+               });
+            },
+
 
 };
 
