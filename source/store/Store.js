@@ -49,15 +49,21 @@
       },
 
 
-      uploadRoute: function(formData) {
+      uploadRoute: function(formData, routeCoordinates) {
 
          return new Promise((RESOLVE, REJECT) => {
+            console.log("formData", formData);
 
+            var form = new FormData();
+            form.append('title', formData.Title);
+            form.append('description', formData.Description);
+            form.append('routeCoordinates', routeCoordinates);
+            form.append('username', 'Lar');
 
-            fetch("http://localhost/upload_route.php",
+            fetch("http://localhost/register_route.php",
             {
                method: 'POST',
-               body: formData
+               body: form
             }).then((response) => {
 
                response.json().then((respObj) => {
@@ -67,12 +73,12 @@
 
                      return REJECT(false);
                   }
-                  else if(respObj.status == 200){
+                  else if(respObj.status == 200) {
 
                      return RESOLVE(true);
                   };
                });
-            }, (error) =>{
+            }, (error) => {
                return REJECT(error);
             });
          });
