@@ -24,16 +24,17 @@ import haversine from 'haversine'
 import pick from 'lodash/pick'
 
 var MapView = require('react-native-maps');
-var RegisterRoute = require('./RegisterRoute.js')
+var RegisterRoute = require('./RegisterRoute.js');
+var RouteList = require('./RouteList.js');
 
 
-const { width, height } = Dimensions.get('window')
+const { width, height } = Dimensions.get('window');
 
 class MapV extends Component {
 
    constructor(props) {
 
-      super(props)
+      super(props);
       this.state = {
 
          initialPosition: {longitude:-122.03036811, latitude:37.33045921, latitudeDelta:0.0922, longitudeDelta:0.0421},
@@ -88,7 +89,16 @@ class MapV extends Component {
    onSubmitRoutePressed() {
       this.props.navigator.push({
          title: "RegisterRoute",
-         component: RegisterRoute
+         component: RegisterRoute,
+         passProps: {routeCoordinates: this.state.routeCoordinates}
+      });
+   };
+
+
+   onViewRoutePressed() {
+      this.props.navigator.push({
+         title: "RouteList",
+         component: RouteList
       });
    };
 
@@ -135,15 +145,20 @@ class MapV extends Component {
             </MapView>
 
             <View style={styles.bottomBar}>
-               <TouchableHighlight style={styles.bottomBarGroup}
-                  underlayColor='#70db70'
-                  onPress={this.onSubmitRoutePressed.bind(this)}
-               >
-                  <View style={styles.bottomBarGroup}>
-                     <Text style={styles.bottomBarHeader}>DISTANCE</Text>
-                     <Text style={styles.bottomBarContent}>{parseFloat(this.state.distanceTravelled).toFixed(2)} km</Text>
-                  </View>
-               </TouchableHighlight>
+               <View style={styles.bottomBarGroup}>
+                  <TouchableHighlight style={styles.bottomBarGroup}
+                     underlayColor='#70db70'
+                     onPress={this.onSubmitRoutePressed.bind(this)}
+                  >
+                     <Text style={styles.bottomBarHeader}>Upload</Text>
+                  </TouchableHighlight>
+                  <TouchableHighlight style={styles.bottomBarGroup}
+                     underlayColor='#70db70'
+                     onPress={this.onViewRoutePressed.bind(this)}
+                  >
+                     <Text style={styles.bottomBarHeader}>Routes</Text>
+                  </TouchableHighlight>
+               </View>
             </View>
          </View>
       )
@@ -208,7 +223,6 @@ const styles = StyleSheet.create({
 })
 
 module.exports = MapV;
-
 
 /*
 2017-01-19 14:17:46.165 [info][tid:com.facebook.react.JavaScript]
