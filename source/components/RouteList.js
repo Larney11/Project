@@ -24,11 +24,10 @@ class RouteList extends Component {
     };
   }
 
+
   componentDidMount() {
 
     Store.getRoutes().then((routesArray) => {
-      console.log("+++++++++++++++++++++++oopopopopopopopopopopopopop878789789799999999999");
-      console.log(routesArray);
       /*
       var routesArrayLength = routesArray.length;
       var logoImages = [];
@@ -64,128 +63,110 @@ class RouteList extends Component {
   };
 
 
-  //=========================================
-
-
   handleSelectedRow(rowID) {
-
-      var selectedRowID = this.state.selectedRowID;
-      if(selectedRowID == rowID) {
-
-         this.setState({
-            selectedRowID: null
-         })
-      }
-      else if(selectedRowID != rowID) {
-
-         this.setState({
-            selectedRowID: rowID
-         })
-      }
-   }
-
-
-   _renderSeperator(sectionID: number, rowID: number, adjacentRowHighlighted: bool) {
-     return (
-
-       <View
-         key={`${sectionID}-${rowID}`}
-         style={{
-           height: adjacentRowHighlighted ? 4 : 1,
-           backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC',
-         }}
-       />
-     );
-   }
-
-
-    _renderRow(rowData: string, sectionID: number, rowID: number, highlightRow: (sectionID: number, rowID: number) => void) {
-
-      console.log("f-=-=-=-=-=-=-=================");
-      console.log(rowData);
-      var route_id = rowData.route_id;
-      var title = rowData.title;
-      var description = rowData.description;
-
-      return (
-
-         <View>
-            <TouchableHighlight onPress={ () => {
-               this.handleSelectedRow(rowID)
-            }}>
-               <View style={styles.rowContainer}>
-
-                  <Image style={styles.thumb} source={require('../../Resources/img/loginBackground.jpg')} />
-
-                  <View style={styles.rowContents}>
-                      <Text style={styles.subtext}>
-                         {rowData.get("title")}
-                      </Text>
-                      <Text style={styles.text}>
-                         {rowData.get("description")}
-                      </Text>
-                  </View>
-               </View>
-            </TouchableHighlight>
-         </View>
-       )
+    var selectedRowID = this.state.selectedRowID;
+    if(selectedRowID == rowID) {
+      this.setState({
+        selectedRowID: null
+      })
     }
+    else if(selectedRowID != rowID) {
+      this.setState({
+        selectedRowID: rowID
+      })
+    }
+  };
 
 
-    render() {
+  _renderSeperator(sectionID: number, rowID: number, adjacentRowHighlighted: bool) {
+    return (
+      <View
+        key={`${sectionID}-${rowID}`}
+        style={{
+          height: adjacentRowHighlighted ? 4 : 1,
+          backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC',
+        }}
+      />
+    );
+  };
 
-         return (
 
-           <ListView
-             dataSource={this.state.dataSource}
-             renderRow={this._renderRow}
-             renderSeparator={this._renderSeperator}
-           />
-        )
-   }
-   //===================
+  _renderRow(rowData: string, sectionID: number, rowID: number, highlightRow: (sectionID: number, rowID: number) => void) {
 
+    var route_id = rowData.route_id;
+    var title = rowData.title;
+    var description = rowData.description;
 
-}
+    return (
+      <View>
+        <TouchableHighlight onPress={ () => {
+          this.handleSelectedRow(rowID)
+        }}>
+          <View style={styles.rowContainer}>
+            <Image style={styles.thumb} source={require('../../Resources/img/loginBackground.jpg')} />
+            <View style={styles.rowContents}>
+              <Text style={styles.subtext}>
+                {rowData.get("title")}
+              </Text>
+              <Text style={styles.text}>
+                {rowData.get("description")}
+              </Text>
+            </View>
+          </View>
+        </TouchableHighlight>
+      </View>
+    )
+  };
+
+  render() {
+    return (
+      <ListView
+        dataSource={this.state.dataSource}
+        renderRow={this._renderRow}
+        renderSeparator={this._renderSeperator}
+      />
+    )
+  };
+};
 
 
 var styles = StyleSheet.create({
   listviewContainer: {
     flex: 1
   },
-      rowContainer: {
-        flexDirection: 'row',
-        //justifyContent: 'center',
-        padding: 5,
-        backgroundColor: 'white',
-      },
-          thumb: {
-            width: 50,
-            height: 50,
-            borderWidth: 1,
-            borderRadius: 5,
-            borderColor: 'grey',
-            marginRight: 5,
-            marginBottom: 5,
-          },
-          rowContents: {
-            flexDirection: 'column',
-          },
-              text: {
-                //width: (width * 0.5),
-                //fontSize: 16,
-                //fontWeight: '600',
-                //color: '#ffffff',
-              },
-              subtext: {
+  rowContainer: {
+    flexDirection: 'row',
+    //justifyContent: 'center',
+    padding: 5,
+    backgroundColor: 'white',
+  },
+  thumb: {
+    width: 50,
+    height: 50,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: 'grey',
+    marginRight: 5,
+    marginBottom: 5,
+  },
+  rowContents: {
+    flexDirection: 'column',
+  },
+  text: {
+    //width: (width * 0.5),
+    //fontSize: 16,
+    //fontWeight: '600',
+    //color: '#ffffff',
+  },
+  subtext: {
 
-              },
-              datetime: {
+  },
+  datetime: {
 
-              },
-      deleteButton: {
+  },
+  deleteButton: {
 
-      },
+  },
 });
 
 module.exports = RouteList;

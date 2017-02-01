@@ -4,6 +4,7 @@ var React = require('react');
 var ReactNative = require('react-native');
 var t = require('tcomb-form-native');
 
+var Store = require('../store/Store.js');
 
 var {
    AppRegistry,
@@ -22,25 +23,42 @@ var Form = t.form.Form;
 
 // here we are: define your domain model
 var Person = t.struct({
-  Tile: t.String,              // a required string
-  Description: t.maybe(t.String),  // an optional string
-  Minutes: t.Number,               // a required number
-  rememberMe: t.Boolean        // a boolean
+  Title: t.String,              // a required string
+  Description: t.String,
 });
 
 var options = {}; // optional rendering options (see documentation)
 
 //var AwesomeProject = React.createClass({
 class RegisterRoute extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+
+    }
+  }
+
+  componentDidMount() {
+    // give focus to the name textbox
+    this.refs.form.getComponent('Title').refs.input.focus();
+  }
 
 
   onPress() {
-    // call getValue() to get the values of the form
+
     var value = this.refs.form.getValue();
     if (value) { // if validation fails, value will be null
-      console.log(value); // value here is an instance of Person
+
+      Store.uploadRoute(value, this.props.routeCoordinates).then((success) => {
+
+      console.log("SUCCEEEEEEEEEEEEEES!!");
+      }, (reason) => {
+
+        console.log("FAAAAAAIIIILLLLLLL!!", reason);
+      });
     }
   }
+
 
   render() {
     return (
@@ -51,13 +69,12 @@ class RegisterRoute extends Component {
           type={Person}
           options={options}
         />
-        <TouchableHighlight style={styles.button} onPress={this.onPress} underlayColor='#99d9f4'>
+        <TouchableHighlight style={styles.button} onPress={this.onPress.bind(this)} underlayColor='#99d9f4'>
           <Text style={styles.buttonText}>Save</Text>
         </TouchableHighlight>
       </View>
     );
   }
-
 };
 
 var styles = StyleSheet.create({
@@ -88,6 +105,5 @@ var styles = StyleSheet.create({
     justifyContent: 'center'
   }
 });
-
 
 module.exports = RegisterRoute;
