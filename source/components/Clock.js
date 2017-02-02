@@ -36,19 +36,18 @@ class Clock extends Component {
 
 
   render() {
-    return (
-      <View>
-        <Stopwatch msecs start={this.state.stopwatchStart}
-          reset={this.state.stopwatchReset}
-          options={options}/>
-        <TouchableHighlight onPress={this.toggleStopwatch}>
-          <Text style={{fontSize: 30}}>{!this.state.stopwatchStart ? "Start" : "Stop"}</Text>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this.resetStopwatch}>
-          <Text style={{fontSize: 30}}>Reset</Text>
-        </TouchableHighlight>
-      </View>
-    );
+    if(this.props.displayStopwatch == true) {
+      return (
+        <View>
+          <Stopwatch msecs start={this.props.stopwatchStart}
+            reset={this.props.stopwatchReset}
+            options={options}/>
+        </View>
+      );
+    }
+    else {
+      return null;
+    }
   }
 }
 
@@ -56,12 +55,11 @@ const handleTimerComplete = () => alert("custom completion function");
 
 const options = {
   container: {
-    margin: 100,
+    //margin: 100,
     backgroundColor: '#FFF',
     padding: 5,
     borderRadius: 5,
     width: 220,
-    border: '2px solid black',
     borderWidth: 2,
     borderColor: '#000',
   },

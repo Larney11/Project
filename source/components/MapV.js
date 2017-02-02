@@ -11,17 +11,19 @@ import {
   TouchableHighlight
 } from 'react-native'
 
-// Calculates the distance travelled
-// Calculates the shortest distance between two points on the earths surface
-import haversine from 'haversine'
 // Picks specified values out of JSON
 import pick from 'lodash/pick'
 
 var MapView = require('react-native-maps');
 var RegisterRoute = require('./RegisterRoute.js');
 var RouteList = require('./RouteList.js');
+var Clock = require('./Clock.js');
+
 
 const { width, height } = Dimensions.get('window');
+// Calculates the distance travelled
+// Calculates the shortest distance between two points on the earths surface
+import haversine from 'haversine'
 
 class MapV extends Component {
   constructor(props) {
@@ -29,6 +31,11 @@ class MapV extends Component {
     this.state = {
       initialPosition: {longitude:-122.03036811, latitude:37.33045921, latitudeDelta:0.0922, longitudeDelta:0.0421},
       routeCoordinates: [],
+      distanceTravelled: 0,
+      prevLatLng: {},
+      stopwatchStart: false,
+      stopwatchReset: false,
+      displayStopwatch: false
       /*[
             { longitude: -122.08732093, latitude: 37.3396502 },
             { longitude: -122.08856086, latitude: 37.34031484 },
@@ -38,6 +45,8 @@ class MapV extends Component {
             { longitude: -122.09320284, latitude: 37.34312416 },
       ],*/
     }
+    this.toggleStopwatch = this.toggleStopwatch.bind(this);
+
   }
 
   watchID: ?number = null;
@@ -57,9 +66,12 @@ class MapV extends Component {
 
     this.watchID = navigator.geolocation.watchPosition((position) => {
 
-      var currentCoordinate = {longitude:position.coords.longitude,latitude:position.coords.latitude};
+      var currentCoordinate = {longitude: position.coords.longitude, latitude: position.coords.latitude};
+
       this.setState({
-        routeCoordinates: this.state.routeCoordinates.concat(currentCoordinate)
+        routeCoordinates: this.state.routeCoordinates.concat(currentCoordinate),
+        distanceTravelled: this.state.distanceTravelled + this.calcDistance(currentCoordinate),
+        prevLatLng: currentCoordinate
       });
     });
   }
@@ -76,7 +88,10 @@ class MapV extends Component {
     this.props.navigator.push({
       title: "RegisterRoute",
       component: RegisterRoute,
-      passProps: {routeCoordinates: this.state.routeCoordinates}
+      passProps: {
+        routeCoordinates: this.state.routeCoordinates,
+        distanceTravelled: this.state.distanceTravelled
+      }
     });
   };
 
@@ -85,6 +100,22 @@ class MapV extends Component {
     this.props.navigator.push({
       title: "RouteList",
       component: RouteList
+    });
+  };
+
+
+  // Calculates distance travelled
+  calcDistance(newLatLng) {
+     const { prevLatLng } = this.state
+     return (haversine(prevLatLng, newLatLng) || 0)
+  };
+
+
+  toggleStopwatch() {
+    this.setState({
+      stopwatchStart: !this.state.stopwatchStart,
+      stopwatchReset: false,
+      displayStopwatch: true
     });
   };
 
@@ -106,18 +137,30 @@ class MapV extends Component {
         </MapView>
         <View style={styles.bottomBar}>
           <View style={styles.bottomBarGroup}>
+          <Clock
+            displayStopwatch={this.state.displayStopwatch}
+            stopwatchStart={this.state.stopwatchStart}
+            stopwatchReset={this.state.stopwatchReset}
+            />
+            <TouchableHighlight
+              onPress={this.toggleStopwatch}>
+              <Text style={styles.bottomBarHeader}>{!this.state.stopwatchStart ? "Start" : "Stop"}</Text>
+            </TouchableHighlight>
+
             <TouchableHighlight style={styles.bottomBarGroup}
               underlayColor='#70db70'
               onPress={this.onSubmitRoutePressed.bind(this)}
-            >
+              >
               <Text style={styles.bottomBarHeader}>Upload</Text>
             </TouchableHighlight>
+
             <TouchableHighlight style={styles.bottomBarGroup}
               underlayColor='#70db70'
               onPress={this.onViewRoutePressed.bind(this)}
-            >
+              >
               <Text style={styles.bottomBarHeader}>Routes</Text>
             </TouchableHighlight>
+
           </View>
         </View>
       </View>
@@ -150,13 +193,13 @@ const styles = StyleSheet.create({
     paddingTop: 30
   },
   map: {
-    flex: 0.7,
+    flex: 0.6,
     width: width,
     height: height
   },
   bottomBar: {
     position: 'absolute',
-    height: 100,
+    height: 200,
     bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.7)',
     width: width,
