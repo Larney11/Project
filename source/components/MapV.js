@@ -126,6 +126,7 @@ class MapV extends Component {
         <MapView
           style={styles.map}
           region={this.state.initialPosition}
+          followUserLocation={true}
           showsUserLocation={true}
         >
           <MapView.Polyline
