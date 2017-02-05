@@ -56,17 +56,19 @@ class MapV extends Component {
     navigator.geolocation.getCurrentPosition((position) => {
       console.log("========getCurrentPosition", position);
       var initialPosition = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0,longitudeDelta: 0};
-      var routeCoordinatess = {longitude:position.coords.longitude,latitude:position.coords.latitude};
+      //var routeCoordinatess = {longitude:position.coords.longitude,latitude:position.coords.latitude};
 
       this.setState({
         initialPosition: initialPosition,
-        routeCoordinates: this.state.routeCoordinates.concat(routeCoordinatess)
+        //routeCoordinates: this.state.routeCoordinates.concat(routeCoordinatess)
       });
 
     },(error) => alert(JSON.stringify(error)),
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000, distanceFilter: 99999}
     );
+  }
 
+  startTracking() {
     this.watchID = navigator.geolocation.watchPosition((position) => {
 
       var longitude = position.coords.longitude;
@@ -80,13 +82,18 @@ class MapV extends Component {
         initialPosition: currentCoordinate,
       });
     });
-  }
+  };
+
+  stopTracking() {
+
+    navigator.geolocation.clearWatch(this.watchID);
+  };
 
 
   // Stops trackng position when closed
   componentWillUnmount() {
 
-    navigator.geolocation.clearWatch(this.watchID);
+    this.stopTracking();
   }
 
 
@@ -118,6 +125,15 @@ class MapV extends Component {
 
 
   toggleStopwatch() {
+
+    if(this.state.stopwatchStart) {
+      this.stopTracking();
+
+    }
+    else {
+      this.startTracking();
+
+    }
     this.setState({
       stopwatchStart: !this.state.stopwatchStart,
       stopwatchReset: false,
