@@ -1,6 +1,7 @@
 php/db_connect.php
 php/db_config.php
 php/registration/*
+/source/components/test/*
 
 # OSX
 #

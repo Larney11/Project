@@ -51,14 +51,15 @@
     },
 
 
-    uploadRoute: function(formData, routeCoordinates) {
+    uploadRoute: function(formData, routeCoordinates, distanceTravelled) {
 
+      console.log("DISTANCE===========DISTANCE",distanceTravelled)
       return new Promise((RESOLVE, REJECT) => {
-        console.log("formData", formData);
 
         var form = new FormData();
         form.append('title', formData.Title);
         form.append('description', formData.Description);
+        form.append('distance', distanceTravelled);
         form.append('routeCoordinates', routeCoordinates);
         form.append('username', 'Lar');
 

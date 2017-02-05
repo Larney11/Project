@@ -29,13 +29,14 @@ class MapV extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      initialPosition: {longitude:-122.03036811, latitude:37.33045921, latitudeDelta:0.0922, longitudeDelta:0.0421},
+      initialPosition: {longitude:-122.03036811, latitude:37.33045921, latitudeDelta:0, longitudeDelta:0},
+      //initialPosition: {longitude:-122.03036811, latitude:37.33045921, latitudeDelta:0.0922, longitudeDelta:0.0421},
       routeCoordinates: [],
       distanceTravelled: 0,
       prevLatLng: {},
       stopwatchStart: false,
       stopwatchReset: false,
-      displayStopwatch: false
+      displayStopwatch: false,
       /*[
             { longitude: -122.08732093, latitude: 37.3396502 },
             { longitude: -122.08856086, latitude: 37.34031484 },
@@ -53,25 +54,30 @@ class MapV extends Component {
 
   componentDidMount() {
     navigator.geolocation.getCurrentPosition((position) => {
-      var initialPosition = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0.0922,longitudeDelta: 0.0421};
+      console.log("========getCurrentPosition", position);
+      var initialPosition = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0,longitudeDelta: 0};
       var routeCoordinatess = {longitude:position.coords.longitude,latitude:position.coords.latitude};
 
       this.setState({
         initialPosition: initialPosition,
         routeCoordinates: this.state.routeCoordinates.concat(routeCoordinatess)
       });
+
     },(error) => alert(JSON.stringify(error)),
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000, distanceFilter: 99999}
     );
 
     this.watchID = navigator.geolocation.watchPosition((position) => {
 
-      var currentCoordinate = {longitude: position.coords.longitude, latitude: position.coords.latitude};
+      var longitude = position.coords.longitude;
+      var latitude = position.coords.latitude;
+      var currentCoordinate = {longitude: longitude, latitude: latitude, latitudeDelta: 0, longitudeDelta: 0};
 
       this.setState({
         routeCoordinates: this.state.routeCoordinates.concat(currentCoordinate),
         distanceTravelled: this.state.distanceTravelled + this.calcDistance(currentCoordinate),
-        prevLatLng: currentCoordinate
+        prevLatLng: currentCoordinate,
+        initialPosition: currentCoordinate,
       });
     });
   }
@@ -126,8 +132,8 @@ class MapV extends Component {
         <MapView
           style={styles.map}
           region={this.state.initialPosition}
-          followUserLocation={true}
           showsUserLocation={true}
+          followsUserLocation={true}
         >
           <MapView.Polyline
             coordinates={this.state.routeCoordinates}
