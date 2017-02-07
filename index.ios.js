@@ -7,8 +7,9 @@
  var Login = require('./source/components/Login.js');
  var MapV = require('./source/components/MapV.js');
  var RouteList = require('./source/components/RouteList.js');
+ var RouteMap = require('./source/components/RouteMap.js');
  var Clock = require('./source/components/Clock.js');
- var AnimatedViews = require('./source/components/test/AnimatedViews.js');
+ var Test = require('./source/components/test/DefaultMarkers.js');
 
 
 class Project extends React.Component {
@@ -19,8 +20,8 @@ class Project extends React.Component {
         initialRoute={{
           //title: 'Login',
           //component: Login
-          title: 'MapV',
-          component: MapV
+          title: 'Login',
+          component: Login
         }}/>
     );
   }

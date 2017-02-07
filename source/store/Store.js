@@ -21,8 +21,6 @@
       return new Promise((RESOLVE, REJECT) => {
 
         var form = new FormData();
-        //form.append('username', username);
-        //form.append('password', password);
         form.append('username', 'Lar');
         form.append('password', '1234');
 
@@ -33,7 +31,6 @@
         }).then((response) => {
 
           response.json().then((respObj) => {
-            console.log("-----------",respObj);
 
             if(respObj.status == 404) {
 
@@ -53,15 +50,14 @@
 
     uploadRoute: function(formData, routeCoordinates, distanceTravelled) {
 
-      console.log("DISTANCE===========DISTANCE",distanceTravelled)
       return new Promise((RESOLVE, REJECT) => {
 
         var form = new FormData();
+        form.append('username', 'Lar');
         form.append('title', formData.Title);
         form.append('description', formData.Description);
         form.append('distance', distanceTravelled);
         form.append('routeCoordinates', routeCoordinates);
-        form.append('username', 'Lar');
 
         fetch("http://localhost/register_route.php",
         {
@@ -70,7 +66,7 @@
         }).then((response) => {
 
           response.json().then((respObj) => {
-            console.log("-----------",respObj);
+
             if(respObj.status == 404) {
 
               return REJECT(false);
@@ -101,18 +97,11 @@
 
           response.json().then((routes) => {
 
-            //if(routes.status == 404) {
-            // return REJECT(false);
-            //}
-            //else if(routes.status == 200) {
-
             var routesArray = [];
             for (var i = 0, len = routes.length; i < len; i++) {
               routesArray.push(new Route(routes[i]));
             };
-
             return RESOLVE(routesArray);
-            //};
           });
         }, (error) => {
           return REJECT(error);

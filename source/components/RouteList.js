@@ -1,3 +1,7 @@
+/*
+ *
+ */
+
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -8,72 +12,56 @@ import {
   Dimensions,
   TouchableHighlight
 } from 'react-native'
+
+var Store = require('./../store/Store.js');
+var RouteMap = require('./RouteMap.js');
+
 const { width, height } = Dimensions.get('window');
 
-
-var Store = require('./../store/Store.js')
-
 class RouteList extends Component {
-  // Initialize the hardcoded data
+
   constructor(props) {
+
     super(props);
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
       dataSource: ds.cloneWithRows([]),
       selectedRowID: null
     };
-  }
+  };
 
 
   componentDidMount() {
 
     Store.getRoutes().then((routesArray) => {
-      /*
-      var routesArrayLength = routesArray.length;
-      var logoImages = [];
-      var i;
-      for(i=0; i<routesArrayLength; i++){
 
-        logoImages[i] = require('../../android/app/src/main/res/mipmap-hdpi/ic_launcher.png');
-      }
-      */
-
-      this.setState({
-        dataSource: this.state.dataSource.cloneWithRows(routesArray),
-        //logos: logoImages,
-        //routesArrayLength: routesArrayLength
-      });
-      /*
-      var message;
-      var rowID;
-      for(rowID = 0; rowID<routesArrayLength; rowID++){
-        message = messages[rowID];
-        if(message) {
-          uri_message = message.account.logo.uri;
-          mimetype_message = message.account.logo.mimetype;
-          filename_message = message.account.logo.filename;
-          this.getLogoImage(uri_message, filename_message, mimetype_message, rowID);
-        }
-      }
-      */
+      this.setState({dataSource: this.state.dataSource.cloneWithRows(routesArray)});
     },(resaon) => {
-      console.log("-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=", resaon);
 
+      console.log("getRoutes():", resaon);
+    });
+  };
+
+
+  viewRouteMap() {
+
+    this.props.navigator.push({
+      title: "RouteMap",
+      component: RouteMap,
     });
   };
 
 
   handleSelectedRow(rowID) {
+
     var selectedRowID = this.state.selectedRowID;
     if(selectedRowID == rowID) {
-      this.setState({
-        selectedRowID: null
-      })
+
+      this.setState({ selectedRowID: null })
     }
     else if(selectedRowID != rowID) {
-      this.setState({
-        selectedRowID: rowID
-      })
+
+      this.setState({selectedRowID: rowID})
     }
   };
 
@@ -84,7 +72,7 @@ class RouteList extends Component {
         key={`${sectionID}-${rowID}`}
         style={{
           height: adjacentRowHighlighted ? 4 : 1,
-          backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC',
+          backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC'
         }}
       />
     );
@@ -99,12 +87,15 @@ class RouteList extends Component {
 
     return (
       <View>
+
         <TouchableHighlight onPress={ () => {
           this.handleSelectedRow(rowID)
         }}>
           <View style={styles.rowContainer}>
+
             <Image style={styles.thumb} source={require('../../Resources/img/loginBackground.jpg')} />
             <View style={styles.rowContents}>
+
               <Text style={styles.subtext}>
                 {rowData.get("title")}
               </Text>
@@ -119,20 +110,43 @@ class RouteList extends Component {
   };
 
   render() {
+
     return (
-      <ListView
-        dataSource={this.state.dataSource}
-        renderRow={this._renderRow}
-        renderSeparator={this._renderSeperator}
-      />
+      <View style={styles.container}>
+
+        <TouchableHighlight
+          onPress={this.viewRouteMap.bind(this)}
+          >
+          <View style={styles.headerContainer}>
+
+            <Text style={styles.mapBtn}>Map</Text>
+          </View>
+        </TouchableHighlight>
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={this._renderRow}
+          renderSeparator={this._renderSeperator}
+          automaticallyAdjustContentInsets={false}
+          enableEmptySections={true}
+        />
+      </View>
     )
   };
 };
 
 
 var styles = StyleSheet.create({
-  listviewContainer: {
+  container: {
+    marginTop: 65,
     flex: 1
+  },
+  headerContainer: {
+    height: 30,
+    //flex: 0.1,
+    backgroundColor: "#FF0"
+  },
+  listviewContainer: {
+    flex: 0.9
   },
   rowContainer: {
     flexDirection: 'row',
@@ -167,6 +181,18 @@ var styles = StyleSheet.create({
   deleteButton: {
 
   },
+  mapBtn: {
+    width: 40,
+    height: 20,
+    position: 'absolute',
+    right: 5,
+    top: 5,
+    borderWidth: 2,
+    borderRadius: 5,
+    borderColor: "blue",
+    paddingLeft: 5,
+    backgroundColor:"white",
+  }
 });
 
 module.exports = RouteList;

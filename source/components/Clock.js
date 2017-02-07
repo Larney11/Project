@@ -1,44 +1,32 @@
+/*
+ *
+ */
+
 import React, { Component } from 'react';
-import { AppRegistry, StyleSheet,Text,View, TouchableHighlight } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableHighlight
+} from 'react-native';
+
 import { Stopwatch, Timer } from 'react-native-stopwatch-timer';
 
 class Clock extends Component {
+
   constructor(props) {
     super(props);
-    this.state = {
-      timerStart: false,
-      stopwatchStart: false,
-      totalDuration: 90000,
-      timerReset: false,
-      stopwatchReset: false,
-    };
-    this.toggleTimer = this.toggleTimer.bind(this);
-    this.resetTimer = this.resetTimer.bind(this);
-    this.toggleStopwatch = this.toggleStopwatch.bind(this);
-    this.resetStopwatch = this.resetStopwatch.bind(this);
-  }
-
-  toggleTimer() {
-    this.setState({timerStart: !this.state.timerStart, timerReset: false});
-  }
-
-  resetTimer() {
-    this.setState({timerStart: false, timerReset: true});
-  }
-
-  toggleStopwatch() {
-    this.setState({stopwatchStart: !this.state.stopwatchStart, stopwatchReset: false});
-  }
-
-  resetStopwatch() {
-    this.setState({stopwatchStart: false, stopwatchReset: true});
-  }
+    this.state = {};
+  };
 
 
   render() {
+
     if(this.props.displayStopwatch == true) {
+
       return (
         <View>
+
           <Stopwatch msecs start={this.props.stopwatchStart}
             reset={this.props.stopwatchReset}
             options={options}/>
@@ -46,12 +34,12 @@ class Clock extends Component {
       );
     }
     else {
-      return null;
-    }
-  }
-}
 
-const handleTimerComplete = () => alert("custom completion function");
+      return null;
+    };
+  };
+};
+
 
 const options = {
   container: {
@@ -70,6 +58,4 @@ const options = {
   }
 };
 
-
 module.exports = Clock;
-//AppRegistry.registerComponent('TestApp', () => TestApp);

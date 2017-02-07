@@ -1,27 +1,26 @@
-'use strict';
-var React = require('react');
-var ReactNative = require('react-native');
-var Dimensions = require('Dimensions');
+/*
+ *
+ */
+
+import React, { Component } from 'react'
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  Image,
+  Dimensions,
+  TouchableHighlight
+} from 'react-native'
+
 var windowSize = Dimensions.get('window');
-
-var {
-   AppRegistry,
-   StyleSheet,
-   View,
-   Text,
-   TextInput,
-   Image,
-   TouchableHighlight
-} = ReactNative;
-var {
-   Component
-} = React;
-
 var Store = require('../store/Store.js');
 var MapV = require('./MapV.js');
 
 class Login extends React.Component {
+
    constructor(props) {
+
       super(props);
       this.state = {
          username: "",
@@ -29,13 +28,14 @@ class Login extends React.Component {
          errorText: "",
          showErrorText: false
       }
-   }
+   };
 
    onLoginPressed() {
+
       var username = this.state.username;
       var password = this.state.password;
-
       if((username == "") || (password == "")) {
+
          this.setState({
             errorText: "Must enter username and password.",
             showErrorText: true
@@ -69,7 +69,9 @@ class Login extends React.Component {
 
 
    _renderErrorMessage() {
+
       if(this.state.showErrorText) {
+
          return (
             <Text style={styles.errorText}>{this.state.errorText}</Text>
          )
@@ -81,14 +83,19 @@ class Login extends React.Component {
 
 
    render() {
+
       return (
          <View style={styles.container}>
+
          <Image style={styles.background} source={require('../../Resources/img/loginBackground.jpg')} />
             <View style={styles.header}>
+
                <Image style={styles.mark} source={require('../../Resources/img/running-feet.jpg')} />
             </View>
             <View style={styles.inputs}>
+
                <View style={styles.inputContainer}>
+
                   <TextInput
                      ref="1"
                      style={styles.singleLine}
@@ -101,6 +108,7 @@ class Login extends React.Component {
                   />
                </View>
                <View style={styles.inputContainer}>
+
                   <TextInput
                      ref="2"
                      style={styles.singleLine}
@@ -114,6 +122,7 @@ class Login extends React.Component {
                </View>
                {this._renderErrorMessage()}
                <View style={styles.forgotContainer}>
+
                   <Text style={styles.greyFont}>Forgot Password</Text>
                </View>
             </View>
@@ -122,17 +131,17 @@ class Login extends React.Component {
                onPress={this.onLoginPressed.bind(this)}
             >
                <View style={styles.signin}>
+
                   <Text style={styles.whiteFont}>Sign In</Text>
                </View>
             </TouchableHighlight>
             <View style={styles.signup}>
+
                <Text style={styles.greyFont}>"Don't have an account?"<Text style={styles.whiteFont}>  Sign Up</Text></Text>
             </View>
          </View>
       );
-   }
-
-
+   };
 };
 
 
