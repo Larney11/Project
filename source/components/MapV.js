@@ -10,6 +10,8 @@ import {
   Dimensions,
   TouchableHighlight
 } from 'react-native'
+var TimerMixin = require('react-timer-mixin');
+
 
 var MapView = require('react-native-maps');
 var RegisterRoute = require('./RegisterRoute.js');
@@ -22,12 +24,18 @@ import haversine from 'haversine'
 const { width, height } = Dimensions.get('window');
 
 class MapV extends Component {
+  mixins: [TimerMixin];
 
   constructor(props) {
 
     super(props);
     this.state = {
-      initialPosition: {longitude:-122.03036811, latitude:37.33045921, latitudeDelta:0, longitudeDelta:0},
+      region: new MapView.AnimatedRegion ({
+        longitude:-122.03036811,
+        latitude:37.33045921,
+        latitudeDelta:0,
+        longitudeDelta:0
+      }),
       //initialPosition: {longitude:-122.03036811, latitude:37.33045921, latitudeDelta:0.0922, longitudeDelta:0.0421},
       routeCoordinates: [],
       distanceTravelled: 0,
@@ -35,8 +43,10 @@ class MapV extends Component {
       stopwatchStart: false,
       stopwatchReset: false,
       displayStopwatch: false,
+      intervalId: null
     }
     this.toggleStopwatch = this.toggleStopwatch.bind(this);
+    //this.startTracking = this.startTracking.bind(this);
   }
 
   watchID: ?number = null;
@@ -45,28 +55,29 @@ class MapV extends Component {
 
     navigator.geolocation.getCurrentPosition((position) => {
 
-      var initialPosition = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0,longitudeDelta: 0};
-      this.setState({initialPosition: initialPosition});
+      var region = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0,longitudeDelta: 0};
+      this.setState({region: region});
     },(error) => alert(JSON.stringify(error)),
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000, distanceFilter: 99999}
+      {enableHighAccuracy: true, timeout: 1000, maximumAge: 1000, distanceFilter: 10}
     );
-  }
-
+  };
 
   startTracking() {
-    this.watchID = navigator.geolocation.watchPosition((position) => {
+
+    navigator.geolocation.getCurrentPosition((position) => {
 
       var longitude = position.coords.longitude;
       var latitude = position.coords.latitude;
       var currentCoordinate = {longitude: longitude, latitude: latitude, latitudeDelta: 0, longitudeDelta: 0};
-
       this.setState({
+        region: {longitude: longitude, latitude: latitude, latitudeDelta: 0,longitudeDelta: 0},
         routeCoordinates: this.state.routeCoordinates.concat(currentCoordinate),
         distanceTravelled: this.state.distanceTravelled + this.calcDistance(currentCoordinate),
         prevLatLng: currentCoordinate,
-        initialPosition: currentCoordinate,
       });
-    });
+    },(error) => alert(JSON.stringify(error)),
+      {enableHighAccuracy: true, timeout: 1000, maximumAge: 1000, distanceFilter: 10}
+    );
   };
 
 
@@ -115,19 +126,21 @@ class MapV extends Component {
 
   toggleStopwatch() {
 
-    if(this.state.stopwatchStart) {
-
-      this.stopTracking();
-    }
-    else {
-
-      this.startTracking();
-    }
     this.setState({
       stopwatchStart: !this.state.stopwatchStart,
       stopwatchReset: false,
       displayStopwatch: true
     });
+
+    if(this.state.stopwatchStart) {
+
+      clearInterval(this.state.intervalId);
+    }
+    else {
+
+      var intervalId = setInterval( () => { this.startTracking() }, 2000);
+      this.setState({intervalId: intervalCall});
+    }
   };
 
 
@@ -136,11 +149,10 @@ class MapV extends Component {
     return (
       <View style={styles.container}>
 
-        <MapView
+        <MapView.Animated
           style={styles.map}
-          region={this.state.initialPosition}
+          region={this.state.region}
           showsUserLocation={true}
-          followsUserLocation={true}
         >
           <MapView.Polyline
             coordinates={this.state.routeCoordinates}
@@ -148,7 +160,7 @@ class MapV extends Component {
             fillColor="rgba(255,0,0,0.5)"
             strokeWidth={4}
           />
-        </MapView>
+        </MapView.Animated>
         <View style={styles.bottomBar}>
 
           <View style={styles.bottomBarGroup}>
