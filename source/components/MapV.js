@@ -71,7 +71,7 @@ class MapV extends Component {
       var currentCoordinate = {longitude: longitude, latitude: latitude, latitudeDelta: 0, longitudeDelta: 0};
       this.setState({
         region: {longitude: longitude, latitude: latitude, latitudeDelta: 0,longitudeDelta: 0},
-        routeCoordinates: this.state.routeCoordinates.concat(currentCoordinate),
+        routeCoordinates: this.state.routeCoordinates.concat([currentCoordinate]),
         distanceTravelled: this.state.distanceTravelled + this.calcDistance(currentCoordinate),
         prevLatLng: currentCoordinate,
       });
@@ -132,6 +132,8 @@ class MapV extends Component {
       displayStopwatch: true
     });
 
+    var intervalId;
+
     if(this.state.stopwatchStart) {
 
       clearInterval(this.state.intervalId);
@@ -139,7 +141,7 @@ class MapV extends Component {
     else {
 
       var intervalId = setInterval( () => { this.startTracking() }, 2000);
-      this.setState({intervalId: intervalCall});
+      this.setState({intervalId: intervalId});
     }
   };
 

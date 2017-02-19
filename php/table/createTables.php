@@ -9,7 +9,6 @@ try{
    $sql = "CREATE TABLE route(
       route_id INT NOT NULL AUTO_INCREMENT,
       username VARCHAR(30),
-      initial_coord
       title VARCHAR(255),
       description VARCHAR(255),
       time VARCHAR(20),
@@ -25,14 +24,25 @@ try{
 /*
    CREATE TABLE route_coord(
       route_id INT,
-      longitude DOUBLE(10,10),
-      latitude DOUBLE(10,10),
-      longitudeDelta DOUBLE(10,10),
-      latitudeDelta DOUBLE(10,10),
+      longitude DECIMAL(30,25),
+      latitude DECIMAL(30,25),
+      longitudeDelta DECIMAL(30,25),
+      latitudeDelta DECIMAL(30,25),
+      FOREIGN KEY(route_id)
+        references route (route_id)
+   );
+
+   CREATE TABLE route_marker(
+      route_id INT,
+      longitude DOUBLE(30,25),
+      latitude DOUBLE(30,25),
+      longitudeDelta DOUBLE(30,25),
+      latitudeDelta DOUBLE(30,25),
       FOREIGN KEY(route_id)
         references route (route_id)
    );
    */
+
 
    mysql_query($sql);
 }

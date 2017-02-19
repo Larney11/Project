@@ -143,7 +143,7 @@ var styles = StyleSheet.create({
   headerContainer: {
     height: 30,
     //flex: 0.1,
-    backgroundColor: "#FF0"
+    backgroundColor: "#FFF"
   },
   listviewContainer: {
     flex: 0.9
