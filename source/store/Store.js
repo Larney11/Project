@@ -49,15 +49,16 @@
 
 
     uploadRoute: function(formData, routeCoordinates, distanceTravelled) {
-
       return new Promise((RESOLVE, REJECT) => {
+
+        var jsonString = JSON.stringify(routeCoordinates);
 
         var form = new FormData();
         form.append('username', 'Lar');
         form.append('title', formData.Title);
         form.append('description', formData.Description);
         form.append('distance', distanceTravelled);
-        form.append('routeCoordinates', routeCoordinates);
+        form.append('routeCoordinates', jsonString);
 
         fetch("http://localhost/register_route.php",
         {
@@ -99,11 +100,13 @@
 
             var routesArray = [];
             for (var i = 0, len = routes.length; i < len; i++) {
+
               routesArray.push(new Route(routes[i]));
             };
             return RESOLVE(routesArray);
           });
         }, (error) => {
+
           return REJECT(error);
         });
       });
