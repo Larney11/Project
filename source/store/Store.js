@@ -88,7 +88,7 @@
 
       return new Promise((RESOLVE, REJECT) => {
 
-        fetch("http://localhost/register_route.php?route_id=1",
+        fetch("http://localhost/register_route.php?route_id=57",
         {
           method: 'GET',
           headers: {
@@ -103,6 +103,36 @@
 
               routesArray.push(new Route(routes[i]));
             };
+            return RESOLVE(routesArray);
+          });
+        }, (error) => {
+
+          return REJECT(error);
+        });
+      });
+    },
+
+
+    getRouteCoordinates: function() {
+
+      return new Promise((RESOLVE, REJECT) => {
+
+        fetch("http://localhost/register_route.php?route=57",
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }).then((response) => {
+          //console.log("fekfenfkenkekn=======", response);
+          response.json().then((routes) => {
+
+            var routesArray = [];
+            for (var i = 0, len = routes.length; i < len; i++) {
+
+              routesArray.push(new Route(routes[i]));
+            };
+            console.log(routesArray);
             return RESOLVE(routesArray);
           });
         }, (error) => {
