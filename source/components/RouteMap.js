@@ -13,6 +13,7 @@ import {
 
 var MapView = require('react-native-maps');
 var RouteList = require('./RouteList.js');
+var Store = require('../store/Store.js');
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,12 +24,37 @@ class RouteMap extends Component {
     super(props);
     this.state = {
       initialPosition: {longitude:-122.03036811, latitude:37.33045921, latitudeDelta:0, longitudeDelta:0},
-      markers: []
+      markers: [],
+      routeCoordinates: []
     };
   };
 
 
   componentDidMount() {
+
+    Store.getRouteCoordinates(this.props.route_id).then((routeCoordinates) => {
+
+      var longitude;
+      var latitude;
+      var longitudeDelta;
+      var latitudeDelta;
+      var coordArray = [];
+      var coordObj = {};
+
+      for (var i = 0, len = routeCoordinates.length; i < len; i++) {
+        coordObj = {};
+        longitude = routeCoordinates[i].get("longitude");
+        latitude = routeCoordinates[i].get("latitude");
+        longitudeDelta = routeCoordinates[i].get("longitudeDelta");
+        latitudeDelta = routeCoordinates[i].get("latitudeDelta");
+        coordObj = {longitude: longitude, latitude: latitude, longitudeDelta: longitudeDelta, latitudeDelta: latitudeDelta}
+        coordArray.push(coordObj)
+      }
+
+      this.setState({routeCoordinates: coordArray});
+    }, (reason) => {
+
+    })
 
     navigator.geolocation.getCurrentPosition((position) => {
 
@@ -68,6 +94,12 @@ class RouteMap extends Component {
               pinColor={marker.color}
             />
           ))}
+          <MapView.Polyline
+            coordinates={this.state.routeCoordinates}
+            strokeColor="#000"
+            fillColor="rgba(255,0,0,0.5)"
+            strokeWidth={4}
+          />
         </MapView>
         <View style={styles.topBar}>
 
