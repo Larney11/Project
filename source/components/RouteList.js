@@ -15,6 +15,8 @@ import {
 
 var Store = require('./../store/Store.js');
 var RouteMap = require('./RouteMap.js');
+var RouteDetails = require('./RouteDetails.js');
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,8 +25,10 @@ class RouteList extends Component {
   constructor(props) {
 
     super(props);
+    this._pressRow = this._pressRow.bind(this);
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
+      routesArray: null,
       dataSource: ds.cloneWithRows([]),
       selectedRowID: null
     };
@@ -35,7 +39,10 @@ class RouteList extends Component {
 
     Store.getRoutes().then((routesArray) => {
 
-      this.setState({dataSource: this.state.dataSource.cloneWithRows(routesArray)});
+      this.setState({
+        routesArray: routesArray,
+        dataSource: this.state.dataSource.cloneWithRows(routesArray)
+      });
     },(resaon) => {
 
       console.log("getRoutes():", resaon);
@@ -52,17 +59,27 @@ class RouteList extends Component {
   };
 
 
-  handleSelectedRow(rowID) {
+  handleSelectedRow() {
 
+    //console.log("lllllll[[[---------]]]", rowId);
+    var route = this.state.routesArray[0];
+    this.props.navigator.push({
+      title: "RouteDetails",
+      component: RouteDetails,
+      passProps: {
+        routeDetails: route,
+        //distanceTravelled: this.state.distanceTravelled
+      }
+    });
+/*
     var selectedRowID = this.state.selectedRowID;
     if(selectedRowID == rowID) {
-
       this.setState({ selectedRowID: null })
     }
     else if(selectedRowID != rowID) {
-
       this.setState({selectedRowID: rowID})
     }
+    */
   };
 
 
@@ -79,6 +96,19 @@ class RouteList extends Component {
   };
 
 
+  _pressRow(rowID: number) {
+
+    var route = this.state.routesArray[rowID];
+    this.props.navigator.push({
+      title: "RouteDetails",
+      component: RouteDetails,
+      passProps: {
+        routeDetails: route,
+      }
+    });
+  };
+
+
   _renderRow(rowData: string, sectionID: number, rowID: number, highlightRow: (sectionID: number, rowID: number) => void) {
 
     var route_id = rowData.route_id;
@@ -87,9 +117,9 @@ class RouteList extends Component {
 
     return (
       <View>
-
-        <TouchableHighlight onPress={ () => {
-          this.handleSelectedRow(rowID)
+        <TouchableHighlight onPress={() => {
+          this._pressRow(rowID);
+          highlightRow(sectionID, rowID);
         }}>
           <View style={styles.rowContainer}>
 
@@ -110,7 +140,6 @@ class RouteList extends Component {
   };
 
   render() {
-
     return (
       <View style={styles.container}>
 
@@ -124,7 +153,7 @@ class RouteList extends Component {
         </TouchableHighlight>
         <ListView
           dataSource={this.state.dataSource}
-          renderRow={this._renderRow}
+          renderRow={this._renderRow.bind(this)}
           renderSeparator={this._renderSeperator}
           automaticallyAdjustContentInsets={false}
           enableEmptySections={true}
