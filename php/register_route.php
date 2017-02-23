@@ -70,12 +70,29 @@
      $stmt->execute([$route_id]);
      $resultsCoord = $stmt->fetchAll(PDO::FETCH_ASSOC);
 */
-     $stmt = $pdo->prepare("SELECT * FROM route r, route_marker rm WHERE r.route_id = ? AND r.route_id = rm.route_id");
+     $stmt = $pdo->prepare("SELECT * FROM route r, route_marker rm WHERE r.route_id = rm.route_id");
       //$stmt = $pdo->prepare("SELECT * FROM route r, route_marker rm WHERE r.route_id = ? AND r.route_id = rm.route_id");
-      $stmt->execute([$route_id]);
+      $stmt->execute([]);
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
       //$results['route_coordinates'] = $resultsCoord;
 
       echo json_encode($results);
+    }
+    else if(isset($_GET['route'])) {
+
+      $route_id = $_GET['route'];
+
+      try {
+
+        $stmt = $pdo->prepare("SELECT longitude, latitude, longitudeDelta, latitudeDelta FROM route_coord WHERE route_id = ?");
+        $stmt->execute([$route_id]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      } catch(PDOException $e) {
+
+        echo $e->getMessage();
+      }
+
+      echo json_encode($results, JSON_NUMERIC_CHECK);
     }
 ?>
