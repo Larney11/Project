@@ -19,6 +19,7 @@ var RouteDetails = require('./RouteDetails.js');
 
 
 const { width, height } = Dimensions.get('window');
+import haversine from 'haversine'
 
 class RouteList extends Component {
 
@@ -29,6 +30,7 @@ class RouteList extends Component {
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
       routesArray: null,
+      distanceArray: [],
       dataSource: ds.cloneWithRows([]),
       selectedRowID: null
     };
@@ -38,6 +40,20 @@ class RouteList extends Component {
   componentDidMount() {
 
     Store.getRoutes().then((routesArray) => {
+
+      var currentLocation = this.props.currentLocation;
+
+      for (var i = 0, len = routesArray.length; i < len; i++) {
+
+        routeLocation = {};
+        longitude = routesArray[i].get("longitude");
+        latitude = routesArray[i].get("latitude");
+        longitudeDelta = routesArray[i].get("longitudeDelta");
+        latitudeDelta = routesArray[i].get("latitudeDelta");
+        routeLocation = {longitude: longitude, latitude: latitude, longitudeDelta: longitudeDelta, latitudeDelta: latitudeDelta}
+
+        this.state.distanceArray[i] = 0;
+      }
 
       this.setState({
         routesArray: routesArray,
@@ -50,36 +66,19 @@ class RouteList extends Component {
   };
 
 
+  // Calculates distance travelled
+  calcDistance(currentLocation, routeLocation) {
+
+     return (haversine(currentLocation, routeLocation) || 0)
+  };
+
+
   viewRouteMap() {
 
     this.props.navigator.push({
       title: "RouteMap",
       component: RouteMap,
     });
-  };
-
-
-  handleSelectedRow() {
-
-    //console.log("lllllll[[[---------]]]", rowId);
-    var route = this.state.routesArray[0];
-    this.props.navigator.push({
-      title: "RouteDetails",
-      component: RouteDetails,
-      passProps: {
-        routeDetails: route,
-        //distanceTravelled: this.state.distanceTravelled
-      }
-    });
-/*
-    var selectedRowID = this.state.selectedRowID;
-    if(selectedRowID == rowID) {
-      this.setState({ selectedRowID: null })
-    }
-    else if(selectedRowID != rowID) {
-      this.setState({selectedRowID: rowID})
-    }
-    */
   };
 
 
@@ -131,6 +130,9 @@ class RouteList extends Component {
               </Text>
               <Text style={styles.text}>
                 {rowData.get("description")}
+              </Text>
+              <Text style={styles.text}>
+                {this.state.distanceArray[rowID]} m
               </Text>
             </View>
           </View>

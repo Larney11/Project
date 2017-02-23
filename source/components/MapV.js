@@ -109,9 +109,13 @@ class MapV extends Component {
 
   onViewRoutePressed() {
 
+    var lastPos = this.state.region.lenght;
     this.props.navigator.push({
       title: "RouteList",
-      component: RouteList
+      component: RouteList,
+      passProps: {
+        currentLocation: this.state.region[lastPos]
+      }
     });
   };
 
