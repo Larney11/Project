@@ -58,6 +58,7 @@ class RouteDetails extends React.Component {
 
           <Text>Title: {this.props.routeDetails.get('title')}</Text>
           <Text>Description: {this.props.routeDetails.get('description')}</Text>
+          <Text>Distance: {this.props.routeDetails.get('distance')}</Text>
         </View>
       </View>
     )

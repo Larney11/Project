@@ -69,6 +69,7 @@ class MapV extends Component {
       var longitude = position.coords.longitude;
       var latitude = position.coords.latitude;
       var currentCoordinate = {longitude: longitude, latitude: latitude, latitudeDelta: 0, longitudeDelta: 0};
+
       this.setState({
         region: {longitude: longitude, latitude: latitude, latitudeDelta: 0,longitudeDelta: 0},
         routeCoordinates: this.state.routeCoordinates.concat([currentCoordinate]),
@@ -101,7 +102,7 @@ class MapV extends Component {
       component: RegisterRoute,
       passProps: {
         routeCoordinates: this.state.routeCoordinates,
-        distanceTravelled: this.state.distanceTravelled
+        distanceTravelled: this.state.distanceTravelled,
       }
     });
   };

@@ -40,17 +40,20 @@ class RouteMap extends Component {
       var latitudeDelta;
       var coordArray = [];
       var coordObj = {};
-
+      var key = 0;
       for (var i = 0, len = routeCoordinates.length; i < len; i++) {
+
         coordObj = {};
         longitude = routeCoordinates[i].get("longitude");
         latitude = routeCoordinates[i].get("latitude");
-        longitudeDelta = routeCoordinates[i].get("longitudeDelta");
-        latitudeDelta = routeCoordinates[i].get("latitudeDelta");
-        coordObj = {longitude: longitude, latitude: latitude, longitudeDelta: longitudeDelta, latitudeDelta: latitudeDelta}
+        coordObj = {longitude: longitude, latitude:latitude, latitudeDelta: 0, longitudeDelta: 0}
         coordArray.push(coordObj)
-      }
+        if((i == 0)||(i == len-1)) {
 
+          this.state.markers.push({coordinate:{longitude: longitude, latitude: latitude}, key: key, color: "#000"});
+          key ++;
+        }
+      }
       this.setState({routeCoordinates: coordArray});
     }, (reason) => {
 
@@ -59,7 +62,6 @@ class RouteMap extends Component {
     navigator.geolocation.getCurrentPosition((position) => {
 
       var initialPosition = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0,longitudeDelta: 0};
-      this.state.markers.push({coordinate:{longitude: -122.03036811, latitude: 37.33045921}, key: 1, color: "#000"});
       this.setState({initialPosition: initialPosition});
 
     },(error) => alert(JSON.stringify(error)),
@@ -92,6 +94,7 @@ class RouteMap extends Component {
               key={marker.key}
               coordinate={marker.coordinate}
               pinColor={marker.color}
+
             />
           ))}
           <MapView.Polyline

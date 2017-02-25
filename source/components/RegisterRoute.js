@@ -42,7 +42,7 @@ class RegisterRoute extends Component {
     var value = this.refs.form.getValue();
     // if validation fails, value will be null
     if (value) {
-
+      console.log("o-o-o-oo-o-o-o-o=-BEFORE UPLOAD-=-0-0-0-0-0-0-0-0-0-0-", this.props.routeCoordinates);
       Store.uploadRoute(value, this.props.routeCoordinates, this.props.distanceTravelled).then((success) => {
 
       }, (reason) => {
