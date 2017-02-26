@@ -8,13 +8,15 @@ import {
   View,
   Text,
   Dimensions,
-  TouchableHighlight
+  TouchableHighlight,
+  Alert
 } from 'react-native'
 
 var MapView = require('react-native-maps');
 var RouteList = require('./RouteList.js');
 var Store = require('../store/Store.js');
 
+import haversine from 'haversine'
 const { width, height } = Dimensions.get('window');
 
 class RouteMap extends Component {
@@ -25,7 +27,10 @@ class RouteMap extends Component {
     this.state = {
       initialPosition: {longitude:-122.03036811, latitude:37.33045921, latitudeDelta:0, longitudeDelta:0},
       markers: [],
-      routeCoordinates: []
+      routeCoordinates: [],
+      routeStartPosition: {},
+      routeEndPosition: {},
+      routeCoordIndex: 0
     };
   };
 
@@ -48,10 +53,16 @@ class RouteMap extends Component {
         latitude = routeCoordinates[i].get("latitude");
         coordObj = {longitude: longitude, latitude:latitude, latitudeDelta: 0, longitudeDelta: 0}
         coordArray.push(coordObj)
-        if((i == 0)||(i == len-1)) {
+        if(i == 0) {
 
+          this.setState({ routeStartPosition: {longitude: longitude, latitude: latitude} });
           this.state.markers.push({coordinate:{longitude: longitude, latitude: latitude}, key: key, color: "#000"});
           key ++;
+        }
+        if(i == len-1) {
+
+          this.setState({ routeEndPosition: {longitude: longitude, latitude: latitude} });
+          this.state.markers.push({coordinate:{longitude: longitude, latitude: latitude}, key: key, color: "#FFF"});
         }
       }
       this.setState({routeCoordinates: coordArray});
@@ -79,6 +90,80 @@ class RouteMap extends Component {
   };
 
 
+  startRoute() {
+
+    navigator.geolocation.getCurrentPosition((position) => {
+
+      var currentLocation = {longitude:position.coords.longitude,latitude:position.coords.latitude};
+      var distanceFromRoute = this.calcDistance(currentLocation, this.state.routeStartPosition);
+
+      if(distanceFromRoute <= 300) {
+        Alert.alert('Go!', "Route has begun!");
+        var intervalId = setInterval( () => { this.routeChecker() }, 2000);
+        this.setState({intervalId: intervalId});
+      }
+      else {
+        Alert.alert('Alert', "Must be at starting point! " + distanceFromRoute + " meters away");
+      }
+    },(error) => alert(JSON.stringify(error)),
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000, distanceFilter: 20}
+    );
+  };
+
+
+  routeChecker() {
+
+    navigator.geolocation.getCurrentPosition((position) => {
+
+      var currentLocation = {longitude:position.coords.longitude,latitude:position.coords.latitude};
+      const { routeCoordIndex, routeCoordinates, routeEndPosition } = this.state
+      var distanceFromRoute;
+      var routeCoordinate = {};
+      var exit = false;
+      while(exit == false) {
+
+        for (var i = routeCoordIndex, len = routeCoordinates.length; i < len; i++) {
+
+          routeCoordinate = {longitude: routeCoordinates[i].longitude, latitude: routeCoordinates[i].latitude}
+          distanceFromRoute = this.calcDistance(currentLocation, routeCoordinate);
+          if(distanceFromRoute <= 300) {
+
+            console.log("-+/");
+            if(i == len-1) {
+
+              clearInterval(this.state.intervalId);
+              exit = true;
+              Alert.alert('Finito!', "Route Finished");
+            }
+          }
+          else {
+
+            if(i == len-1) {
+
+              Alert.alert('Finito!', "Route Finished");
+            }
+            else {
+
+              Alert.alert('Bitch Please!', "Go back to the route!");
+            }
+            exit == true;
+            clearInterval(this.state.intervalId);
+          }
+        }
+      }
+    },(error) => alert(JSON.stringify(error)),
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000, distanceFilter: 20}
+    );
+  };
+
+
+  // Calculates distance travelled
+  calcDistance(currentLocation, routeLocation) {
+
+     return (haversine(currentLocation, routeLocation, {unit: 'meter'}) || 0)
+  };
+
+
   render() {
 
     return (
@@ -94,8 +179,18 @@ class RouteMap extends Component {
               key={marker.key}
               coordinate={marker.coordinate}
               pinColor={marker.color}
-
-            />
+              centerOffset={{ x: -42, y: -60 }}
+            >
+              <MapView.Callout style={styles.markerText}>
+                <TouchableHighlight
+                  onPress={this.startRoute.bind(this)}
+                >
+                  <View>
+                    <Text>Start Route</Text>
+                  </View>
+                </TouchableHighlight>
+              </MapView.Callout>
+            </MapView.Marker>
           ))}
           <MapView.Polyline
             coordinates={this.state.routeCoordinates}
@@ -197,6 +292,9 @@ const styles = StyleSheet.create({
     //flexWrap: 'wrap',
     //flexDirection: 'row'
   },
+  markerText: {
+    width: 85
+  }
 });
 
 module.exports = RouteMap;
