@@ -30,7 +30,7 @@ class RouteMap extends Component {
       routeCoordinates: [],
       routeStartPosition: {},
       routeEndPosition: {},
-      routeCoordIndex: 0
+      routeCoordIndex: 0,
     };
   };
 
@@ -94,10 +94,11 @@ class RouteMap extends Component {
 
     navigator.geolocation.getCurrentPosition((position) => {
 
-      var currentLocation = {longitude:position.coords.longitude,latitude:position.coords.latitude};
+      var currentLocation = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0,longitudeDelta: 0};
       var distanceFromRoute = this.calcDistance(currentLocation, this.state.routeStartPosition);
+      this.setState({initialPosition: currentLocation});
 
-      if(distanceFromRoute <= 300) {
+      if(distanceFromRoute <= 10) {
         Alert.alert('Go!', "Route has begun!");
         var intervalId = setInterval( () => { this.routeChecker() }, 2000);
         this.setState({intervalId: intervalId});
@@ -112,45 +113,43 @@ class RouteMap extends Component {
 
 
   routeChecker() {
-
+    console.log("-----------ROUTECHECKER!!!!!!-------");
     navigator.geolocation.getCurrentPosition((position) => {
 
       var currentLocation = {longitude:position.coords.longitude,latitude:position.coords.latitude};
-      const { routeCoordIndex, routeCoordinates, routeEndPosition } = this.state
-      var distanceFromRoute;
-      var routeCoordinate = {};
+      const { routeCoordinates } = this.state
+      var distanceFromRoute = 0;
       var exit = false;
-      while(exit == false) {
+      var routeHasPassed = false;
 
-        for (var i = routeCoordIndex, len = routeCoordinates.length; i < len; i++) {
+        var routeCoordinate;
+        var routeCoordIndex = this.state.routeCoordIndex;
+
+        for (var i = this.state.routeCoordIndex; i < routeCoordinates.length && exit == false; i++) {
 
           routeCoordinate = {longitude: routeCoordinates[i].longitude, latitude: routeCoordinates[i].latitude}
           distanceFromRoute = this.calcDistance(currentLocation, routeCoordinate);
-          if(distanceFromRoute <= 300) {
 
-            console.log("-+/");
-            if(i == len-1) {
+          if((distanceFromRoute <= 10) && (i == routeCoordinates.length-1)) {
+            clearInterval(this.state.intervalId);
+            exit = true;
+            Alert.alert('Finito!', "Route Finished");
+          }
+          if(distanceFromRoute <= 10) {
 
-              clearInterval(this.state.intervalId);
-              exit = true;
-              Alert.alert('Finito!', "Route Finished");
-            }
+            console.log("passed", this.state.routeCoordIndex + " i:" + i );
+            routeHasPassed = true;
+            this.setState({routeCoordIndex: routeCoordIndex+1});
           }
           else {
-
-            if(i == len-1) {
-
-              Alert.alert('Finito!', "Route Finished");
-            }
-            else {
-
+            if(routeHasPassed == false)
+            {
               Alert.alert('Bitch Please!', "Go back to the route!");
             }
-            exit == true;
-            clearInterval(this.state.intervalId);
+            console.log("EXIT@", this.state.routeCoordIndex);
+            exit = true;
           }
         }
-      }
     },(error) => alert(JSON.stringify(error)),
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000, distanceFilter: 20}
     );
