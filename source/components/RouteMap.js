@@ -22,8 +22,8 @@ const { width, height } = Dimensions.get('window');
 class RouteMap extends Component {
 
   constructor(props) {
-
     super(props);
+    this.map = null;
     this.state = {
       initialPosition: {longitude:-122.03036811, latitude:37.33045921, latitudeDelta:0, longitudeDelta:0},
       markers: [],
@@ -31,9 +31,13 @@ class RouteMap extends Component {
       routeStartPosition: {},
       routeEndPosition: {},
       routeCoordIndex: 0,
+      routeViewCoordinates: []
     };
+    this.startRoute = this.startRoute.bind(this);
+
   };
 
+  watchID: ?number = null;
 
   componentDidMount() {
 
@@ -70,15 +74,36 @@ class RouteMap extends Component {
 
     })
 
-    navigator.geolocation.getCurrentPosition((position) => {
+
+    this.watchID = navigator.geolocation.watchPosition((position) => {
 
       var initialPosition = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0,longitudeDelta: 0};
-      this.setState({initialPosition: initialPosition});
+      var curentPosition = {longitude:position.coords.longitude,latitude:position.coords.latitude};
 
-    },(error) => alert(JSON.stringify(error)),
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000, distanceFilter: 20}
-    );
+      this.map.fitToCoordinates([curentPosition, this.state.routeStartPosition], {
+        edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
+        animated: true,
+      });
+
+    });
   };
+
+
+  componentWillUnmount() {
+
+    this.clearWatch();
+  }
+
+
+  clearWatch() {
+
+    navigator.geolocation.clearWatch(this.watchID);
+  }
+
+  componentWillUnmount() {
+
+    this.clearWatch();
+  }
 
 
   viewRouteList() {
@@ -96,9 +121,14 @@ class RouteMap extends Component {
 
       var currentLocation = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0,longitudeDelta: 0};
       var distanceFromRoute = this.calcDistance(currentLocation, this.state.routeStartPosition);
-      this.setState({initialPosition: currentLocation});
+      //this.setState({initialPosition: currentLocation});
 
-      if(distanceFromRoute <= 10) {
+      if(distanceFromRoute <= 20) {
+
+        this.clearWatch();
+
+        //this.fitToRoute();
+
         Alert.alert('Go!', "Route has begun!");
         var intervalId = setInterval( () => { this.routeChecker() }, 2000);
         this.setState({intervalId: intervalId});
@@ -112,44 +142,55 @@ class RouteMap extends Component {
   };
 
 
+  fitToRoute() {
+
+    this.map.fitToCoordinates([this.state.routeStartPosition, this.state.routeEndPosition], {
+      edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
+      animated: true,
+    });
+  }
+
+
+
   routeChecker() {
     console.log("-----------ROUTECHECKER!!!!!!-------");
-    navigator.geolocation.getCurrentPosition((position) => {
 
+    navigator.geolocation.getCurrentPosition((position) => {
       var currentLocation = {longitude:position.coords.longitude,latitude:position.coords.latitude};
       const { routeCoordinates } = this.state
       var distanceFromRoute = 0;
       var exit = false;
       var routeHasPassed = false;
 
-        var routeCoordinate;
-        var routeCoordIndex = this.state.routeCoordIndex;
+      var routeCoordinate;
+      var routeCoordIndex = this.state.routeCoordIndex;
 
-        for (var i = this.state.routeCoordIndex; i < routeCoordinates.length && exit == false; i++) {
+      for (var i = this.state.routeCoordIndex; i < routeCoordinates.length && exit == false; i++) {
 
-          routeCoordinate = {longitude: routeCoordinates[i].longitude, latitude: routeCoordinates[i].latitude}
-          distanceFromRoute = this.calcDistance(currentLocation, routeCoordinate);
+        routeCoordinate = {longitude: routeCoordinates[i].longitude, latitude: routeCoordinates[i].latitude}
+        distanceFromRoute = this.calcDistance(currentLocation, routeCoordinate);
 
-          if((distanceFromRoute <= 10) && (i == routeCoordinates.length-1)) {
-            clearInterval(this.state.intervalId);
-            exit = true;
-            Alert.alert('Finito!', "Route Finished");
-          }
-          if(distanceFromRoute <= 10) {
-
-            console.log("passed", this.state.routeCoordIndex + " i:" + i );
-            routeHasPassed = true;
-            this.setState({routeCoordIndex: routeCoordIndex+1});
-          }
-          else {
-            if(routeHasPassed == false)
-            {
-              Alert.alert('Bitch Please!', "Go back to the route!");
-            }
-            console.log("EXIT@", this.state.routeCoordIndex);
-            exit = true;
-          }
+        if((distanceFromRoute <= 20) && (i == routeCoordinates.length-1)) {
+          clearInterval(this.state.intervalId);
+          exit = true;
+          Alert.alert('Finito!', "Route Finished");
         }
+        if(distanceFromRoute <= 20) {
+
+          console.log("passed", this.state.routeCoordIndex + " i:" + i );
+          routeHasPassed = true;
+          this.setState({routeCoordIndex: routeCoordIndex+1});
+        }
+        else {
+
+          if(routeHasPassed == false) {
+
+            Alert.alert('Bitch Please!', "Go back to the route!");
+          }
+          console.log("EXIT@", this.state.routeCoordIndex);
+          exit = true;
+        }
+      }
     },(error) => alert(JSON.stringify(error)),
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000, distanceFilter: 20}
     );
@@ -169,6 +210,7 @@ class RouteMap extends Component {
       <View style={styles.container}>
 
         <MapView
+          ref={ref => { this.map = ref; }}
           style={styles.map}
           region={this.state.initialPosition}
           showsUserLocation={true}
