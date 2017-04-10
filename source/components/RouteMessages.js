@@ -8,6 +8,7 @@ import {
   ListView,
   View,
   Text,
+  TextInput,
   Image,
   Dimensions,
   TouchableHighlight
@@ -17,6 +18,7 @@ import {
 
 const { width, height } = Dimensions.get('window');
 import haversine from 'haversine'
+var windowSize = Dimensions.get('window');
 
 var Message = require('../class/Message.js');
 
@@ -31,7 +33,8 @@ class RouteMessages extends Component {
       routesArray: null,
       distanceArray: [],
       dataSource: ds.cloneWithRows([]),
-      selectedRowID: null
+      selectedRowID: null,
+      messageText: "",
     };
   };
 
@@ -58,6 +61,16 @@ class RouteMessages extends Component {
       component: RouteMap,
     });
   };
+
+
+  _sendMessage() {
+    var message = this.state.routesArray;
+    message.push(new Message({"username":"Lar", "text": this.state.messageText, "datetime": "01/01/99 01:20"}));
+    this.setState({
+      dataSource: this.state.dataSource.cloneWithRows(message)
+    });
+    this.refs["_textInput"].clear(0);
+  }
 
 
   _renderSeperator(sectionID: number, rowID: number, adjacentRowHighlighted: bool) {
@@ -115,6 +128,17 @@ class RouteMessages extends Component {
             automaticallyAdjustContentInsets={false}
             enableEmptySections={true}
           />
+          <View style={styles.sendMesssageContainer}>
+            <TextInput
+              ref={'_textInput'}
+              placeholder="Type Message..."
+              onChangeText={(messageText) => this.setState({messageText})}
+              style={styles.sendMesssageContainerInput}
+            />
+            <TouchableHighlight underlayColor={'#e7e7e7'} onPress={this._sendMessage.bind(this)}>
+              <Text style={styles.sendButton}>Send</Text>
+            </TouchableHighlight>
+          </View>
         </View>
       )
     }
@@ -166,6 +190,30 @@ var styles = StyleSheet.create({
   rowContents: {
     flexDirection: 'column',
   },
+  sendMesssageContainer: {
+    backgroundColor: '#e7e7e7',
+    height: 40,
+    paddingTop: 5,
+    paddingLeft: 5,
+    flexDirection: 'row'
+  },
+  sendMesssageContainerInput: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: '#C0C0C0',
+    paddingLeft: 5,
+    paddingRight: 5,
+    fontSize: 13,
+    height: 30,
+    width: (windowSize.width * 0.85) - 5,
+  },
+  sendButton: {
+    height: 30,
+    width: (windowSize.width * 0.15) - 20,
+    marginTop: 5,
+    marginLeft: 5
+  }
 });
 
 
