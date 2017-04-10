@@ -11,7 +11,8 @@ import {
   TextInput,
   Image,
   Dimensions,
-  TouchableHighlight
+  TouchableHighlight,
+  Switch
 } from 'react-native'
 
 //var Store = require('./../store/Store.js');
@@ -35,6 +36,7 @@ class RouteMessages extends Component {
       dataSource: ds.cloneWithRows([]),
       selectedRowID: null,
       messageText: "",
+      subscribedToMessages: true,
     };
   };
 
@@ -121,6 +123,14 @@ class RouteMessages extends Component {
 
       return (
         <View style={styles.container}>
+          <View style={styles.subscribeContainer}>
+            <Text>Subscribe</Text>
+            <Switch
+              onValueChange={(value) => this.setState({subscribedToMessages: value})}
+              style={{marginBottom: 10}}
+              value={this.state.subscribedToMessages}
+            />
+          </View>
           <ListView
             dataSource={this.state.dataSource}
             renderRow={this._renderRow.bind(this)}
@@ -189,6 +199,9 @@ var styles = StyleSheet.create({
   },
   rowContents: {
     flexDirection: 'column',
+  },
+  subscribeContainer: {
+    flexDirection: 'row',
   },
   sendMesssageContainer: {
     backgroundColor: '#e7e7e7',
