@@ -17,6 +17,7 @@ import {
 
 var windowSize = Dimensions.get('window');
 var RouteMap = require('./RouteMap.js');
+var RouteMessages = require('./RouteMessages.js')
 
 
 class RouteDetails extends React.Component {
@@ -25,7 +26,7 @@ class RouteDetails extends React.Component {
 
     super(props);
     this.state = {
-
+      displayMessages: false,
     }
   };
 
@@ -44,6 +45,16 @@ class RouteDetails extends React.Component {
         route_id: this.props.routeDetails.get('route_id')
       }
     });
+  };
+
+
+  _handlePress() {
+    if(!this.state.displayMessages) {
+      this.setState({displayMessages: true});
+    }
+    else {
+      this.setState({displayMessages: false});
+    }
   };
 
 
@@ -69,9 +80,10 @@ class RouteDetails extends React.Component {
               <Text>Title: {this.props.routeDetails.get('title')}</Text>
               <Text>Description: {this.props.routeDetails.get('description')}</Text>
               <Text>Distance: {this.props.routeDetails.get('distance')}</Text>
-              <TouchableHighlight underlayColor={'#e7e7e7'} onPress={this._handlePress}>
+              <TouchableHighlight underlayColor={'#e7e7e7'} onPress={this._handlePress.bind(this)}>
                 <Text style={styles.viewStatsBtton}>Comments</Text>
               </TouchableHighlight>
+              <RouteMessages displayMessages={this.state.displayMessages}/>
             </View>
           </ScrollView>
           <TouchableOpacity
@@ -94,7 +106,6 @@ var styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
     flex: 0.2,
-    //height: windowSize.height * 0.3,
     width: windowSize.width * 0.8
   },
   routeDetails: {
@@ -102,18 +113,15 @@ var styles = StyleSheet.create({
   },
   viewStatsBtton: {
   alignItems: 'center',
-  //marginTop: 20,
   height: 35,
   width: windowSize.width,
   color: 'black',
-  //backgroundColor: 'green',
   borderWidth: 2,
   borderColor: '#00CC66',
   borderRadius: 2,
   paddingTop: 6,
   textAlign: 'center',
   fontSize: 20,
-  //textDecoration: 'none',
   },
   viewStatsBttonPress: {
     alignItems: 'center',
@@ -121,9 +129,7 @@ var styles = StyleSheet.create({
     height: 35,
     width: windowSize.width,
     color: '#e7e7e7',
-    //backgroundColor: 'green',
     borderWidth: 2,
-    //borderColor: 'green',
     borderRadius: 2,
     paddingTop: 5,
   }
