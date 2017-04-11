@@ -43,15 +43,12 @@ class RouteMessages extends Component {
 
   componentDidMount() {
 
-    var routes = [{"username":"Lar", "text": "Hello there!Hello there! Hello there! Hello there! Hello there! Hello there! Hello there! Hello there! Hello there! Hello there! Hello there!", "datetime": "01/01/99 01:20"}]
-    var routesArray = [];
-    for (var i = 0, len = routes.length; i < len; i++) {
+    Store.getRouteMessages(this.props.route_id).then((messages) => {
+      this.setState({
+        dataSource: this.state.dataSource.cloneWithRows(messages)
+      });
+    },(error) => {
 
-      routesArray.push(new Message(routes[i]));
-    };
-    this.setState({
-      routesArray: routesArray,
-      dataSource: this.state.dataSource.cloneWithRows(routesArray)
     });
   };
 
@@ -74,9 +71,8 @@ class RouteMessages extends Component {
     var messageBody = this.state.messageText;
 
     Store.postRouteMessage(route_id, username, messageBody, datetime).then((response) => {
-      console.log("Success@RouteMessage._sendMessage", response);
 
-      message.push(new Message({"username":username, "text":messageBody, "datetime": datetime}));
+      message.push(new Message({"message_id":route_id, "username":username, "text":messageBody, "datetime": datetime}));
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(message)
       });
@@ -119,10 +115,10 @@ class RouteMessages extends Component {
               {rowData.get("username")}
             </Text>
             <Text style={styles.text}>
-              {rowData.get("text")}
+              {rowData.get("message_body")}
             </Text>
             <Text style={styles.text}>
-              {rowData.get("datetime")}
+              {rowData.get("message_datetime")}
             </Text>
           </View>
         </View>
