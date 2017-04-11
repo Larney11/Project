@@ -10,7 +10,7 @@
     AsyncStorage,
   } = ReactNative;
 
-  var Route = require('./../class/Route.js')
+  var Route = require('../class/Route.js')
 
   var Store = function() {};
 
@@ -107,6 +107,41 @@
           });
         }, (error) => {
 
+          return REJECT(error);
+        });
+      });
+    },
+
+
+    postRouteMessage: function(route_id, username, messageBody, datetime) {
+      return new Promise((RESOLVE, REJECT) => {
+
+        var form = new FormData();
+        form.append('route_id', route_id);
+        form.append('username', username);
+        form.append('messageBody', messageBody);
+        form.append('datetime', datetime);
+
+        fetch("http://localhost/messages.php",
+        {
+          method: 'POST',
+          body: form
+        }).then((response) => {
+          console.log("respObj", response);
+
+          response.json().then((respObj) => {
+
+
+            if(respObj.status == 404) {
+
+              return REJECT(false);
+            }
+            else if(respObj.status == 200) {
+
+              return RESOLVE(true);
+            };
+          });
+        }, (error) => {
           return REJECT(error);
         });
       });
