@@ -33,7 +33,6 @@ class RouteDetails extends React.Component {
 
   componentDidMount() {
 
-
   };
 
   routeImagePressed() {
@@ -83,7 +82,7 @@ class RouteDetails extends React.Component {
               <TouchableHighlight underlayColor={'#e7e7e7'} onPress={this._handlePress.bind(this)}>
                 <Text style={styles.viewStatsBtton}>Comments</Text>
               </TouchableHighlight>
-              <RouteMessages displayMessages={this.state.displayMessages}/>
+              <RouteMessages displayMessages={this.state.displayMessages} route_id={this.props.routeDetails.get('route_id')}/>
             </View>
           </ScrollView>
           <TouchableOpacity
@@ -102,6 +101,9 @@ var styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
   },
+  scrollView: {
+    padding: 5
+  },
   routeImage: {
     alignItems: 'center',
     marginTop: 20,
@@ -114,7 +116,7 @@ var styles = StyleSheet.create({
   viewStatsBtton: {
   alignItems: 'center',
   height: 35,
-  width: windowSize.width,
+  width: windowSize.width - 10,
   color: 'black',
   borderWidth: 2,
   borderColor: '#00CC66',

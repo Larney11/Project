@@ -15,7 +15,7 @@ import {
   Switch
 } from 'react-native'
 
-//var Store = require('./../store/Store.js');
+var Store = require('./../store/Store.js');
 
 const { width, height } = Dimensions.get('window');
 import haversine from 'haversine'
@@ -66,13 +66,26 @@ class RouteMessages extends Component {
 
 
   _sendMessage() {
+
     var message = this.state.routesArray;
-    message.push(new Message({"username":"Lar", "text": this.state.messageText, "datetime": "01/01/99 01:20"}));
-    this.setState({
-      dataSource: this.state.dataSource.cloneWithRows(message)
+    var route_id = this.props.route_id;
+    var username = "Lar";
+    var datetime = "01/01/99 01:20";
+    var messageBody = this.state.messageText;
+
+    Store.postRouteMessage(route_id, username, messageBody, datetime).then((response) => {
+      console.log("Success@RouteMessage._sendMessage", response);
+
+      message.push(new Message({"username":username, "text":messageBody, "datetime": datetime}));
+      this.setState({
+        dataSource: this.state.dataSource.cloneWithRows(message)
+      });
+      this.refs["_textInput"].clear(0);
+
+    },(error) => {
+      console.log("Error@RouteMessage._sendMessage", error);
     });
-    this.refs["_textInput"].clear(0);
-  }
+  };
 
 
   _renderSeperator(sectionID: number, rowID: number, adjacentRowHighlighted: bool) {
