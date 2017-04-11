@@ -11,6 +11,7 @@
   } = ReactNative;
 
   var Route = require('../class/Route.js')
+  var Message = require('../class/Message.js')
 
   var Store = function() {};
 
@@ -140,6 +141,34 @@
 
               return RESOLVE(true);
             };
+          });
+        }, (error) => {
+          return REJECT(error);
+        });
+      });
+    },
+
+
+    getRouteMessages: function(route_id) {
+
+      return new Promise((RESOLVE, REJECT) => {
+
+        fetch("http://localhost/messages.php?route_id="+route_id,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }).then((response) => {
+
+          response.json().then((messages) => {
+
+            var messageArray = [];
+            for (var i = 0, len = messages.length; i < len; i++) {
+
+              messageArray.push(new Message(messages[i]));
+            };
+            return RESOLVE(messageArray);
           });
         }, (error) => {
           return REJECT(error);
