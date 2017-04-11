@@ -27,4 +27,18 @@
 
     echo json_encode($response);
   }
+  else if(isset($_GET['route_id']))
+  {
+    $route_id = $_GET['route_id'];
+    try
+    {
+      $stmt = $pdo->prepare("SELECT * FROM route_message WHERE route_id = $route_id");
+      $stmt->execute([]);
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      echo json_encode($results, JSON_NUMERIC_CHECK);
+    }catch(PDOException $e)
+    {
+      echo $e->getMessage();
+    }
+  }
 ?>
