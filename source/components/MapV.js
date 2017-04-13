@@ -49,6 +49,7 @@ class MapV extends Component {
       intervalId: null,
       coordinateCount: 0,
       routeAddress: null,
+      speedArray: [],
     }
     this.toggleStopwatch = this.toggleStopwatch.bind(this);
     //this.startTracking = this.startTracking.bind(this);
@@ -75,6 +76,8 @@ class MapV extends Component {
       var latitude = position.coords.latitude;
       var currentCoordinate = {longitude: longitude, latitude: latitude, latitudeDelta: 0, longitudeDelta: 0};
       var coordinateCount = this.state.coordinateCount;
+      var speedArray = this.state.speedArray;
+      speedArray.push(position.coords.speed);
       if(coordinateCount == 0) {
         Geocoder.geocodePosition({lat:latitude, lng:longitude}).then(res => {
           this.setState({routeAddress: res[0].formattedAddress})
@@ -86,7 +89,8 @@ class MapV extends Component {
         routeCoordinates: this.state.routeCoordinates.concat([currentCoordinate]),
         distanceTravelled: this.state.distanceTravelled + this.calcDistance(currentCoordinate),
         prevLatLng: currentCoordinate,
-        coordinateCount: coordinateCount+1
+        coordinateCount: coordinateCount+1,
+        speedArray: speedArray
       });
     },(error) => alert(JSON.stringify(error)),
       {enableHighAccuracy: true, timeout: 1000, maximumAge: 1000, distanceFilter: 10}
@@ -109,6 +113,21 @@ class MapV extends Component {
 
 
   onSubmitRoutePressed() {
+
+    // Calculate Average Speed
+    var speedArray = this.state.speedArray;
+    var totalSpeed = 0;
+    var maxSpeed;
+    var speedArrayLength = speedArray.length;
+    var i;
+    for(i = 0; i < speedArrayLength; i++) {
+
+      totalSpeed += speedArray[i];
+      if(speedArray[i] > maxSpeed){
+        maxSpeed = speedArray[i];
+      }
+    }
+    var avgSpeed = totalSpeed / speedArrayLength;
 
     this.props.navigator.push({
       title: "RegisterRoute",
