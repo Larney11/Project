@@ -11,6 +11,8 @@ import {
   TouchableHighlight
 } from 'react-native'
 var TimerMixin = require('react-timer-mixin');
+import Geocoder from 'react-native-geocoder';
+
 
 
 var MapView = require('react-native-maps');
@@ -44,7 +46,9 @@ class MapV extends Component {
       stopwatchStart: false,
       stopwatchReset: false,
       displayStopwatch: false,
-      intervalId: null
+      intervalId: null,
+      coordinateCount: 0,
+      routeAddress: null,
     }
     this.toggleStopwatch = this.toggleStopwatch.bind(this);
     //this.startTracking = this.startTracking.bind(this);
@@ -70,12 +74,19 @@ class MapV extends Component {
       var longitude = position.coords.longitude;
       var latitude = position.coords.latitude;
       var currentCoordinate = {longitude: longitude, latitude: latitude, latitudeDelta: 0, longitudeDelta: 0};
-
+      var coordinateCount = this.state.coordinateCount;
+      if(coordinateCount == 0) {
+        Geocoder.geocodePosition({lat:latitude, lng:longitude}).then(res => {
+          this.setState({routeAddress: res[0].formattedAddress})
+        })
+        .catch(err => console.log(err))
+      }
       this.setState({
         region: {longitude: longitude, latitude: latitude, latitudeDelta: 0,longitudeDelta: 0},
         routeCoordinates: this.state.routeCoordinates.concat([currentCoordinate]),
         distanceTravelled: this.state.distanceTravelled + this.calcDistance(currentCoordinate),
         prevLatLng: currentCoordinate,
+        coordinateCount: coordinateCount+1
       });
     },(error) => alert(JSON.stringify(error)),
       {enableHighAccuracy: true, timeout: 1000, maximumAge: 1000, distanceFilter: 10}
@@ -87,6 +98,7 @@ class MapV extends Component {
 
     // Stops trackng position when closed
     navigator.geolocation.clearWatch(this.watchID);
+    this.setState({coordinateCount: 0});
   };
 
 
