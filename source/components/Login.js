@@ -15,7 +15,7 @@ import {
 
 var windowSize = Dimensions.get('window');
 var Store = require('../store/Store.js');
-var MapV = require('./MapV.js');
+var RecordRouteMap = require('./RecordRouteMap.js');
 
 class Login extends React.Component {
 
@@ -50,8 +50,8 @@ class Login extends React.Component {
                showErrorText: false
             });
             this.props.navigator.push({
-               title: "MapV",
-               component: MapV
+               title: "RecordRouteMap",
+               component: RecordRouteMap
             });
          },(reason) => {
             this.setState({
