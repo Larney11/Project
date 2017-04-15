@@ -13,8 +13,6 @@ import {
 var TimerMixin = require('react-timer-mixin');
 import Geocoder from 'react-native-geocoder';
 
-
-
 var MapView = require('react-native-maps');
 var RegisterRoute = require('./RegisterRoute.js');
 var RouteList = require('./RouteList.js');
@@ -52,6 +50,7 @@ class MapV extends Component {
       speedArray: [],
     }
     this.toggleStopwatch = this.toggleStopwatch.bind(this);
+    this.followUserPosition = this.followUserPosition.bind(this);
     //this.startTracking = this.startTracking.bind(this);
   }
 
@@ -61,12 +60,29 @@ class MapV extends Component {
 
     navigator.geolocation.getCurrentPosition((position) => {
 
-      var region = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0,longitudeDelta: 0};
+      var region = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0.0041,longitudeDelta: 0.0021};
       this.setState({region: region});
+      this.followUserPosition();
+
     },(error) => alert(JSON.stringify(error)),
       {enableHighAccuracy: true, timeout: 1000, maximumAge: 1000, distanceFilter: 10}
     );
   };
+
+  componentDidUnMount() {
+    
+    navigator.geolocation.clearWatch(this.watchID);
+  }
+
+
+  followUserPosition() {
+
+    this.watchID = navigator.geolocation.watchPosition((position) => {
+
+      var region = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0.0041,longitudeDelta: 0.0021};
+      this.setState({region: region});
+    });
+  }
 
   startTracking() {
 
