@@ -70,7 +70,7 @@ class MapV extends Component {
   };
 
   componentDidUnMount() {
-    
+
     navigator.geolocation.clearWatch(this.watchID);
   }
 
@@ -259,12 +259,22 @@ class MapV extends Component {
               <Text style={styles.bottomBarHeader}>Upload</Text>
             </TouchableHighlight>
 
-            <TouchableHighlight style={styles.bottomBarGroup}
+          </View>
+          <View style={styles.menuBar}>
+            <TouchableHighlight
               underlayColor='#70db70'
               onPress={this.onViewRoutePressed.bind(this)}
               >
-              <Text style={styles.bottomBarHeader}>Routes</Text>
+              <View style={styles.menuButton}>
+                <Text>Routes</Text>
+              </View>
             </TouchableHighlight>
+            <View style={styles.menuMiddleButton}>
+              <Text>Profile</Text>
+            </View>
+            <View style={styles.menuButton}>
+              <Text>More</Text>
+            </View>
           </View>
         </View>
       </View>
@@ -318,7 +328,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     height: 200,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0)',
     width: width,
     padding: 20,
     flexWrap: 'wrap',
@@ -340,6 +350,33 @@ const styles = StyleSheet.create({
     color: '#19B5FE',
     textAlign: 'center'
   },
+  menuBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    height: 50,
+    width: width,
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'center',
+    backgroundColor: 'green',
+    borderWidth: 1
+  },
+  menuButton: {
+    height: 50,
+    width: (width /3 ),
+    alignItems: 'center',
+    paddingTop: 15
+  },
+  menuMiddleButton: {
+    height: 50,
+    width: (width /3 ),
+    alignItems: 'center',
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: 'black',
+    paddingTop: 15
+  }
 });
 
 module.exports = MapV;
