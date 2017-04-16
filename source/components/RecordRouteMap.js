@@ -16,7 +16,7 @@ import Geocoder from 'react-native-geocoder';
 var MapView = require('react-native-maps');
 var RegisterRoute = require('./RegisterRoute.js');
 var RouteList = require('./RouteList.js');
-var Clock = require('./Clock.js');
+var Clock = require('./StopWatch.js');
 var CameraAction = require('./CameraAction.js')
 
 // Calculates the distance travelled
@@ -42,17 +42,25 @@ class RecordRouteMap extends Component {
       distanceTravelled: 0,
       prevLatLng: {},
       stopwatchStart: false,
+      stopwatchFinish: false,
       stopwatchReset: false,
       displayStopwatch: false,
       intervalId: null,
       coordinateCount: 0,
       routeAddress: null,
       speedArray: [],
+      totalTime: null
     }
     this.toggleStopwatch = this.toggleStopwatch.bind(this);
     this.followUserPosition = this.followUserPosition.bind(this);
     //this.startTracking = this.startTracking.bind(this);
   }
+
+  onChange = (totalTime) => {
+
+    this.setState({ totalTime: totalTime});
+  }
+
 
   watchID: ?number = null;
 
@@ -130,6 +138,9 @@ class RecordRouteMap extends Component {
 
   onSubmitRoutePressed() {
 
+    this.setState({stopwatchFinish: true})
+    const {speedArray, totalTime} = this.state;
+
     // Calculate Average Speed
     var speedArray = this.state.speedArray;
     var totalSpeed = 0;
@@ -206,13 +217,14 @@ class RecordRouteMap extends Component {
     else {
 
       var intervalId = setInterval( () => { this.startTracking() }, 2000);
-      this.setState({intervalId: intervalId});
+      this.setState({intervalId: intervalId, stopwatchFinish: false});
     }
   };
 
 
   render() {
 
+    const { totalTime } = this.state;
     return (
       <View style={styles.container}>
 
@@ -246,10 +258,12 @@ class RecordRouteMap extends Component {
             displayStopwatch={this.state.displayStopwatch}
             stopwatchStart={this.state.stopwatchStart}
             stopwatchReset={this.state.stopwatchReset}
+            stopwatchFinish={this.state.stopwatchFinish}
+            onChange={this.onChange}
             />
             <TouchableHighlight
               onPress={this.toggleStopwatch}>
-              <Text style={styles.bottomBarHeader}>{!this.state.stopwatchStart ? "Start" : "Stop"}</Text>
+              <Text style={styles.bottomBarHeadera}>{!this.state.stopwatchStart ? "Start" : "Pause"}</Text>
             </TouchableHighlight>
 
             <TouchableHighlight style={styles.bottomBarGroup}
@@ -341,6 +355,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: "400",
     textAlign: 'center'
+  },
+  bottomBarHeadera: {
+    color: '#fff',
+    fontWeight: "400",
+    textAlign: 'center',
+    borderWidth: 1,
+    borderColor: 'black'
   },
   bottomBarContent: {
     color: '#fff',
