@@ -49,7 +49,7 @@
     },
 
 
-    uploadRoute: function(formData, routeCoordinates, distanceTravelled) {
+    uploadRoute: function(formData, routeCoordinates, difficulty) {
       return new Promise((RESOLVE, REJECT) => {
 
         var jsonString = JSON.stringify(routeCoordinates);
@@ -58,7 +58,11 @@
         form.append('username', 'Lar');
         form.append('title', formData.Title);
         form.append('description', formData.Description);
-        form.append('distance', distanceTravelled);
+        form.append('address', formData.Address);
+        form.append('distance', formData.DistanceKm);
+        form.append('duration', formData.Duration);
+        form.append('avg_speed', formData.AverageSpeedKmh);
+        form.append('difficulty', difficulty);
         form.append('routeCoordinates', jsonString);
 
         fetch("http://localhost/register_route.php",

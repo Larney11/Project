@@ -8,7 +8,7 @@ import {
   View,
   Text,
   Dimensions,
-  TouchableHighlight
+  TouchableHighlight,
 } from 'react-native'
 var TimerMixin = require('react-timer-mixin');
 import Geocoder from 'react-native-geocoder';
@@ -142,7 +142,6 @@ class RecordRouteMap extends Component {
     const {speedArray, totalTime} = this.state;
 
     // Calculate Average Speed
-    var speedArray = this.state.speedArray;
     var totalSpeed = 0;
     var maxSpeed;
     var speedArrayLength = speedArray.length;
@@ -161,7 +160,10 @@ class RecordRouteMap extends Component {
       component: RegisterRoute,
       passProps: {
         routeCoordinates: this.state.routeCoordinates,
-        distanceTravelled: this.state.distanceTravelled,
+        distanceTravelled: this.state.distanceTravelled.toFixed(2),
+        avgSpeed: avgSpeed.toFixed(2),
+        duration: totalTime.slice(0, 8),
+        address: this.state.routeAddress
       }
     });
   };
