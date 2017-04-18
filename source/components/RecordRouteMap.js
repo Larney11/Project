@@ -1,6 +1,3 @@
-/*
- *
- */
 
 import React, { Component } from 'react'
 import {
@@ -49,7 +46,9 @@ class RecordRouteMap extends Component {
       coordinateCount: 0,
       routeAddress: null,
       speedArray: [],
-      totalTime: null
+      totalTime: null,
+      stopUploadButton: null,
+      displayStopButton: false,
     }
     this.toggleStopwatch = this.toggleStopwatch.bind(this);
     this.followUserPosition = this.followUserPosition.bind(this);
@@ -76,6 +75,11 @@ class RecordRouteMap extends Component {
       {enableHighAccuracy: true, timeout: 1000, maximumAge: 1000, distanceFilter: 10}
     );
   };
+
+  componentWillUnmount() {
+
+    this.stopTracking();
+  }
 
   componentDidUnMount() {
 
@@ -130,9 +134,41 @@ class RecordRouteMap extends Component {
   };
 
 
-  componentWillUnmount() {
+  displayStopButton() {
 
-    this.stopTracking();
+    if(this.state.dislpayStop) {
+
+      var stopUploadButton =
+      <TouchableHighlight
+        onPress={this.displayUploadButton.bind(this)}
+        style={styles.buttonContainer}
+        >
+        <View style={styles.routeButton}>
+          <Text style={styles.routeButtonText}>{"Stop"}</Text>
+        </View>
+      </TouchableHighlight>;
+      this.setState({stopUploadButton: stopUploadButton});
+    }
+    else {
+
+      var stopUploadButton = <View style={styles.blankButton}><Text style={styles.blankButtonText}>{"Stop"}</Text></View>;
+      this.setState({stopUploadButton: stopUploadButton});
+    }
+  }
+
+
+  displayUploadButton() {
+
+      var stopUploadButton =
+      <TouchableHighlight
+        onPress={this.onSubmitRoutePressed.bind(this)}
+        style={styles.buttonContainer}
+        >
+        <View style={styles.routeButton}>
+          <Text style={styles.routeButtonText}>{"Upload"}</Text>
+        </View>
+      </TouchableHighlight>;
+      this.setState({stopUploadButton: stopUploadButton});
   }
 
 
@@ -215,11 +251,15 @@ class RecordRouteMap extends Component {
     if(this.state.stopwatchStart) {
 
       clearInterval(this.state.intervalId);
+      this.setState({dislpayStop: false});
+      this.displayStopButton();
     }
     else {
 
       var intervalId = setInterval( () => { this.startTracking() }, 2000);
-      this.setState({intervalId: intervalId, stopwatchFinish: false});
+      this.setState({intervalId: intervalId, stopwatchFinish: false, dislpayStop: true});
+      this.setState({dislpayStop: !this.state.dislpayStop});
+      this.displayStopButton();
     }
   };
 
@@ -234,7 +274,7 @@ class RecordRouteMap extends Component {
           style={styles.map}
           region={this.state.region}
           showsUserLocation={true}
-        >
+          >
           <MapView.Polyline
             coordinates={this.state.routeCoordinates}
             strokeColor="#000"
@@ -255,32 +295,32 @@ class RecordRouteMap extends Component {
         </View>
         <View style={styles.bottomBar}>
 
-          <View style={styles.bottomBarGroup}>
-          <Clock
-            displayStopwatch={this.state.displayStopwatch}
-            stopwatchStart={this.state.stopwatchStart}
-            stopwatchReset={this.state.stopwatchReset}
-            stopwatchFinish={this.state.stopwatchFinish}
-            onChange={this.onChange}
-            />
+          <View style={styles.bottomButtonGroup}>
             <TouchableHighlight
-              onPress={this.toggleStopwatch}>
-              <Text style={styles.bottomBarHeadera}>{!this.state.stopwatchStart ? "Start" : "Pause"}</Text>
-            </TouchableHighlight>
+              onPress={this.toggleStopwatch}
+              style={styles.buttonContainer}>
 
-            <TouchableHighlight style={styles.bottomBarGroup}
-              underlayColor='#70db70'
-              onPress={this.onSubmitRoutePressed.bind(this)}
-              >
-              <Text style={styles.bottomBarHeader}>Upload</Text>
+              <View style={styles.routeButton}>
+                <Text style={styles.routeButtonText}>{!this.state.stopwatchStart ? "Start" : "Pause"}</Text>
+              </View>
             </TouchableHighlight>
-
+            {this.state.stopUploadButton}
+            <View style={styles.clockContainer}>
+              <Clock
+                displayStopwatch={this.state.displayStopwatch}
+                stopwatchStart={this.state.stopwatchStart}
+                stopwatchReset={this.state.stopwatchReset}
+                stopwatchFinish={this.state.stopwatchFinish}
+                onChange={this.onChange}
+                style={styles.clock}
+              />
+            </View>
           </View>
           <View style={styles.menuBar}>
             <TouchableHighlight
               underlayColor='#70db70'
               onPress={this.onViewRoutePressed.bind(this)}
-              >
+              style={styles.buttonContainer}>
               <View style={styles.menuButton}>
                 <Text>Routes</Text>
               </View>
@@ -342,7 +382,7 @@ const styles = StyleSheet.create({
   },
   bottomBar: {
     position: 'absolute',
-    height: 200,
+    height: 250,
     bottom: 0,
     backgroundColor: 'rgba(0,0,0,0)',
     width: width,
@@ -350,20 +390,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     flexDirection: 'row'
   },
-  bottomBarGroup: {
+  bottomButtonGroup: {
     flex: 1
-  },
-  bottomBarHeader: {
-    color: '#fff',
-    fontWeight: "400",
-    textAlign: 'center'
-  },
-  bottomBarHeadera: {
-    color: '#fff',
-    fontWeight: "400",
-    textAlign: 'center',
-    borderWidth: 1,
-    borderColor: 'black'
   },
   bottomBarContent: {
     color: '#fff',
@@ -372,6 +400,45 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: '#19B5FE',
     textAlign: 'center'
+  },
+  buttonContainer: {
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'center',
+  },
+  routeButton: {
+    width: width * 0.3,
+    height: 25,
+    marginTop: 5,
+    marginBottom: 5,
+    borderWidth: 2,
+    borderColor: 'black',
+    borderRadius: 5,
+    backgroundColor: 'white'
+  },
+  routeButtonText: {
+    color: 'black',
+    fontWeight: "400",
+    textAlign: 'center',
+  },
+  blankButton: {
+    width: width * 0.3,
+    height: 25,
+    marginTop: 5,
+    marginBottom: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+  },
+  blankButtonText: {
+    color: 'rgba(0, 0, 0, 0)',
+    fontWeight: "400",
+    textAlign: 'center',
+  },
+  clockContainer: {
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'center'
+  },
+  clock: {
   },
   menuBar: {
     position: 'absolute',
