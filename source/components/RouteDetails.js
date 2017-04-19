@@ -62,7 +62,6 @@ class RouteDetails extends React.Component {
 
     return (
       <View style={styles.container}>
-        <View>
           <ScrollView
             ref={(scrollView) => { _scrollView = scrollView; }}
             automaticallyAdjustContentInsets={false}
@@ -74,11 +73,41 @@ class RouteDetails extends React.Component {
 
               <Image style={styles.routeImage} source={require('../../Resources/img/gpsRouteSample.jpg')} />
             </TouchableHighlight>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableHighlight underlayColor={'#e7e7e7'} onPress={this.routeImagePressed.bind(this)}>
+                <Text style={styles.startButton}>Start Route</Text>
+              </TouchableHighlight>
+              <TouchableHighlight underlayColor={'#e7e7e7'} onPress={this.routeImagePressed.bind(this)}>
+                <Text style={styles.saveButton}>Save</Text>
+              </TouchableHighlight>
+            </View>
             <View style={styles.routeDetails}>
-
-              <Text>Title: {this.props.routeDetails.get('title')}</Text>
-              <Text>Description: {this.props.routeDetails.get('description')}</Text>
-              <Text>Distance: {this.props.routeDetails.get('distance')}</Text>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.detailLabel}>User: </Text>
+                <Text style={styles.detail}>{this.props.routeDetails.get('username')}</Text>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.detailLabel}>Title: </Text>
+                <Text style={styles.detail}>{this.props.routeDetails.get('title')}</Text>
+              </View>
+              <Text style={styles.detailLabel}>Address: </Text>
+              <Text style={styles.detail}>{this.props.routeDetails.get('address')}</Text>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.detailLabel}>Duration: </Text>
+                <Text style={styles.detail}>{this.props.routeDetails.get('duration')}</Text>
+                <View style={{flexDirection: 'row', alignSelf: 'flex-end', marginRight: 5}}>
+                  <Text style={styles.detailLabel}>   Difficulty: </Text>
+                  <Text style={styles.detail}>{this.props.routeDetails.get('difficulty')}</Text>
+                </View>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.detailLabel}>Distance: </Text>
+                <Text style={styles.detail}>{this.props.routeDetails.get('distance')} km</Text>
+                <View style={{flexDirection: 'row', alignSelf: 'flex-end', marginRight: 4}}>
+                  <Text style={styles.detailLabel}>    Avg Speed: </Text>
+                  <Text style={styles.detail}>{this.props.routeDetails.get('avg_speed')} km/h</Text>
+                </View>
+              </View>
               <TouchableHighlight underlayColor={'#e7e7e7'} onPress={this._handlePress.bind(this)}>
                 <Text style={styles.viewStatsBtton}>Comments</Text>
               </TouchableHighlight>
@@ -90,7 +119,6 @@ class RouteDetails extends React.Component {
             onPress={() => { _scrollView.scrollTo({y: 0}); }}>
             <Text>Scroll to top</Text>
           </TouchableOpacity>
-        </View>
       </View>
     )
   };
@@ -102,16 +130,52 @@ var styles = StyleSheet.create({
     flexDirection: 'column',
   },
   scrollView: {
+    flex: 1,
     padding: 5
   },
   routeImage: {
     alignItems: 'center',
     marginTop: 20,
-    flex: 0.2,
-    width: windowSize.width * 0.8
+    height: windowSize.height * 0.2,
+    width: windowSize.width - 10
+  },
+  startButton: {
+    alignItems: 'center',
+    height: 35,
+    width: (windowSize.width * 0.5) - 10,
+    color: 'black',
+    borderWidth: 2,
+    borderColor: '#00CC66',
+    borderRadius: 2,
+    paddingTop: 6,
+    textAlign: 'center',
+    fontSize: 20,
+    marginTop: 5,
+    marginRight: 2,
+  },
+  saveButton: {
+    alignItems: 'center',
+    height: 35,
+    width: (windowSize.width * 0.5) - 4,
+    color: 'black',
+    borderWidth: 2,
+    borderColor: '#00CC66',
+    borderRadius: 2,
+    paddingTop: 6,
+    textAlign: 'center',
+    fontSize: 20,
+    marginTop: 5,
+    marginLeft: 2,
   },
   routeDetails: {
     flex: 0.8
+  },
+  detailLabel: {
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  detail: {
+    fontSize: 15,
   },
   viewStatsBtton: {
   alignItems: 'center',
@@ -124,6 +188,7 @@ var styles = StyleSheet.create({
   paddingTop: 6,
   textAlign: 'center',
   fontSize: 20,
+  marginTop: 5,
   },
   viewStatsBttonPress: {
     alignItems: 'center',
