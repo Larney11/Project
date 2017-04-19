@@ -25,7 +25,7 @@ class RouteMap extends Component {
     super(props);
     this.map = null;
     this.state = {
-      initialPosition: {longitude:-122.03036811, latitude:37.33045921, latitudeDelta:0, longitudeDelta:0},
+      initialPosition: {longitude:-122.03255055, latitude:37.33517518, latitudeDelta:0, longitudeDelta:0},
       markers: [],
       routeCoordinates: [],
       routeStartPosition: {},
@@ -41,38 +41,16 @@ class RouteMap extends Component {
 
   componentDidMount() {
 
-    Store.getRouteCoordinates(this.props.route_id).then((routeCoordinates) => {
+    if(this.props.routesCoordinates == null) {
 
-      var longitude;
-      var latitude;
-      var longitudeDelta;
-      var latitudeDelta;
-      var coordArray = [];
-      var coordObj = {};
-      var key = 0;
-      for (var i = 0, len = routeCoordinates.length; i < len; i++) {
+      Store.getRouteCoordinates(this.props.route_id).then((routeCoordinates) => {
 
-        coordObj = {};
-        longitude = routeCoordinates[i].get("longitude");
-        latitude = routeCoordinates[i].get("latitude");
-        coordObj = {longitude: longitude, latitude:latitude, latitudeDelta: 0, longitudeDelta: 0}
-        coordArray.push(coordObj)
-        if(i == 0) {
-
-          this.setState({ routeStartPosition: {longitude: longitude, latitude: latitude} });
-          this.state.markers.push({coordinate:{longitude: longitude, latitude: latitude}, key: key, color: "#000"});
-          key ++;
-        }
-        if(i == len-1) {
-
-          this.setState({ routeEndPosition: {longitude: longitude, latitude: latitude} });
-          this.state.markers.push({coordinate:{longitude: longitude, latitude: latitude}, key: key, color: "#FFF"});
-        }
-      }
-      this.setState({routeCoordinates: coordArray});
-    }, (reason) => {
-
-    })
+        this.sortRouteCoordinates(routeCoordinates);
+      }, (reason) => {})
+    }
+    else {
+      this.sortRouteCoordinates(this.props.routeCoordinates);
+    }
 
 
     this.watchID = navigator.geolocation.watchPosition((position) => {
@@ -84,9 +62,38 @@ class RouteMap extends Component {
         edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
         animated: true,
       });
-
     });
   };
+
+
+
+  sortRouteCoordinates(routeCoordinates) {
+
+    var longitude, latitude, longitudeDelta, latitudeDelta;
+    var coordArray = [];
+    var coordObj = {};
+    var key = 0;
+    for (var i = 0, len = routeCoordinates.length; i < len; i++) {
+
+      coordObj = {};
+      longitude = routeCoordinates[i].get("longitude");
+      latitude = routeCoordinates[i].get("latitude");
+      coordObj = {longitude: longitude, latitude:latitude, latitudeDelta: 0, longitudeDelta: 0}
+      coordArray.push(coordObj)
+      if(i == 0) {
+
+        this.setState({ routeStartPosition: {longitude: longitude, latitude: latitude} });
+        this.state.markers.push({coordinate:{longitude: longitude, latitude: latitude}, key: key, color: "#000"});
+        key ++;
+      }
+      if(i == len-1) {
+
+        this.setState({ routeEndPosition: {longitude: longitude, latitude: latitude} });
+        this.state.markers.push({coordinate:{longitude: longitude, latitude: latitude}, key: key, color: "#FFF"});
+      }
+    }
+    this.setState({routeCoordinates: coordArray});
+  }
 
 
   componentWillUnmount() {
@@ -121,13 +128,10 @@ class RouteMap extends Component {
 
       var currentLocation = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0,longitudeDelta: 0};
       var distanceFromRoute = this.calcDistance(currentLocation, this.state.routeStartPosition);
-      //this.setState({initialPosition: currentLocation});
+      navigator.geolocation.clearWatch(this.watchID);
+      this.setState({initialPosition: currentLocation});
 
       if(distanceFromRoute <= 20) {
-
-        this.clearWatch();
-
-        //this.fitToRoute();
 
         Alert.alert('Go!', "Route has begun!");
         var intervalId = setInterval( () => { this.routeChecker() }, 2000);
@@ -142,22 +146,15 @@ class RouteMap extends Component {
   };
 
 
-  fitToRoute() {
-
-    this.map.fitToCoordinates([this.state.routeStartPosition, this.state.routeEndPosition], {
-      edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
-      animated: true,
-    });
-  }
-
-
-
   routeChecker() {
     console.log("-----------ROUTECHECKER!!!!!!-------");
 
     navigator.geolocation.getCurrentPosition((position) => {
+
       var currentLocation = {longitude:position.coords.longitude,latitude:position.coords.latitude};
-      const { routeCoordinates } = this.state
+      var currentLocationa = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0,longitudeDelta: 0};
+      this.setState({initialPosition: currentLocationa});
+      var routeCoordinates = this.state.routeCoordinates;
       var distanceFromRoute = 0;
       var exit = false;
       var routeHasPassed = false;
@@ -185,7 +182,7 @@ class RouteMap extends Component {
 
           if(routeHasPassed == false) {
 
-            Alert.alert('Bitch Please!', "Go back to the route!");
+            Alert.alert('Return to red marker!', "Go back to the route!");
           }
           console.log("EXIT@", this.state.routeCoordIndex);
           exit = true;

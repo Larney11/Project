@@ -10,12 +10,15 @@ import {
   Text,
   Image,
   Dimensions,
-  TouchableHighlight
+  TouchableHighlight,
+  AsyncStorage
 } from 'react-native'
 
 var Store = require('./../store/Store.js');
 var RouteMap = require('./RouteMap.js');
 var RouteDetails = require('./RouteDetails.js');
+var Route = require('../class/Route.js')
+
 
 
 const { width, height } = Dimensions.get('window');
@@ -32,37 +35,15 @@ class RouteList extends Component {
       routesArray: null,
       distanceArray: [],
       dataSource: ds.cloneWithRows([]),
-      selectedRowID: null
+      selectedRowID: null,
+      savedRouteList: false
     };
   };
 
 
   componentDidMount() {
 
-    Store.getRoutes().then((routesArray) => {
-
-      var currentLocation = this.props.currentLocation;
-
-      for (var i = 0, len = routesArray.length; i < len; i++) {
-
-        routeLocation = {};
-        longitude = routesArray[i].get("longitude");
-        latitude = routesArray[i].get("latitude");
-        longitudeDelta = routesArray[i].get("longitudeDelta");
-        latitudeDelta = routesArray[i].get("latitudeDelta");
-        routeLocation = {longitude: longitude, latitude: latitude, longitudeDelta: longitudeDelta, latitudeDelta: latitudeDelta}
-
-        this.state.distanceArray[i] = 0;
-      }
-
-      this.setState({
-        routesArray: routesArray,
-        dataSource: this.state.dataSource.cloneWithRows(routesArray)
-      });
-    },(resaon) => {
-
-      console.log("getRoutes():", resaon);
-    });
+    this._viewRoutesList();
   };
 
 
@@ -78,6 +59,47 @@ class RouteList extends Component {
     this.props.navigator.push({
       title: "RouteMap",
       component: RouteMap,
+    });
+  };
+
+  _viewRoutesList() {
+
+    this.setState({savedRouteList: false});
+    Store.getRoutes().then((routesArray) => {
+
+      var currentLocation = this.props.currentLocation;
+      for (var i = 0, len = routesArray.length; i < len; i++) {
+
+        routeLocation = {};
+        longitude = routesArray[i].get("longitude");
+        latitude = routesArray[i].get("latitude");
+        longitudeDelta = routesArray[i].get("longitudeDelta");
+        latitudeDelta = routesArray[i].get("latitudeDelta");
+        routeLocation = {longitude: longitude, latitude: latitude, longitudeDelta: longitudeDelta, latitudeDelta: latitudeDelta}
+        this.state.distanceArray[i] = 0;
+      }
+
+      this.setState({
+        routesArray: routesArray,
+        dataSource: this.state.dataSource.cloneWithRows(routesArray)
+      });
+    },(resaon) => {
+
+      console.log("getRoutes():", resaon);
+    });
+  };
+
+
+  _viewSavedRoutesList() {
+
+    this.setState({savedRouteList: true});
+    AsyncStorage.getItem('result', (err, result) => {
+      var route = new Route(JSON.parse(result));
+      var routeArray = [route];
+      this.setState({
+        routesArray: routeArray,
+        dataSource: this.state.dataSource.cloneWithRows(routeArray)
+      });
     });
   };
 
@@ -98,21 +120,19 @@ class RouteList extends Component {
   _pressRow(rowID: number) {
 
     var route = this.state.routesArray[rowID];
+    var savedRouteList = this.state.savedRouteList;
     this.props.navigator.push({
       title: "RouteDetails",
       component: RouteDetails,
       passProps: {
         routeDetails: route,
+        savedRouteList: savedRouteList,
       }
     });
   };
 
 
   _renderRow(rowData: string, sectionID: number, rowID: number, highlightRow: (sectionID: number, rowID: number) => void) {
-
-    var route_id = rowData.route_id;
-    var title = rowData.title;
-    var description = rowData.description;
 
     return (
       <View>
@@ -142,18 +162,36 @@ class RouteList extends Component {
   };
 
   render() {
+
     return (
       <View style={styles.container}>
-
-        <TouchableHighlight
-          onPress={this.viewRouteMap.bind(this)}
-          >
-          <View style={styles.headerContainer}>
-
-            <Text style={styles.mapBtn}>Map</Text>
-          </View>
-        </TouchableHighlight>
-        <ListView
+        <View style={styles.menuBar}>
+          <TouchableHighlight
+            underlayColor='#70db70'
+            onPress={this._viewSavedRoutesList.bind(this)}
+            style={styles.buttonContainer}>
+            <View style={styles.menuButton}>
+              <Text>Saved</Text>
+            </View>
+          </TouchableHighlight>
+          <TouchableHighlight
+            underlayColor='#70db70'
+            onPress={this._viewRoutesList.bind(this)}
+            style={styles.buttonContainer}>
+            <View style={styles.menuMiddleButton}>
+              <Text>List</Text>
+            </View>
+          </TouchableHighlight>
+          <TouchableHighlight
+            underlayColor='#70db70'
+            onPress={this.viewRouteMap.bind(this)}
+            style={styles.buttonContainer}>
+            <View style={styles.menuButton}>
+              <Text>Map</Text>
+            </View>
+          </TouchableHighlight>
+        </View>
+        <ListView style={styles.listview}
           dataSource={this.state.dataSource}
           renderRow={this._renderRow.bind(this)}
           renderSeparator={this._renderSeperator}
@@ -168,20 +206,49 @@ class RouteList extends Component {
 
 var styles = StyleSheet.create({
   container: {
-    marginTop: 65,
-    flex: 1
+    marginTop: 60,
+    flex: 1,
+    flexDirection: 'column'
+  },
+  menuBar: {
+    position: 'absolute',
+    right: 5,
+    top: 5,
+    flex : 0.1,
+    height: 50,
+    width: width,
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'center',
+    backgroundColor: 'green',
+    borderWidth: 1
+  },
+  menuButton: {
+    height: 50,
+    width: (width /3 ),
+    alignItems: 'center',
+    paddingTop: 15
+  },
+  menuMiddleButton: {
+    height: 50,
+    width: (width /3 ),
+    alignItems: 'center',
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: 'black',
+    paddingTop: 15
   },
   headerContainer: {
-    height: 30,
-    //flex: 0.1,
+    height: 50,
     backgroundColor: "#FFF"
   },
-  listviewContainer: {
-    flex: 0.9
+  listview: {
+    flex: 0.9,
+    height: height - 200,
+    marginTop: 60
   },
   rowContainer: {
     flexDirection: 'row',
-    //justifyContent: 'center',
     padding: 5,
     backgroundColor: 'white',
   },

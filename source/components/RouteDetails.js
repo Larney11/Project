@@ -12,7 +12,8 @@ import {
   Dimensions,
   TouchableHighlight,
   ScrollView,
-  TouchableOpacity
+  TouchableOpacity,
+  AsyncStorage
 } from 'react-native'
 
 var windowSize = Dimensions.get('window');
@@ -35,15 +36,76 @@ class RouteDetails extends React.Component {
 
   };
 
+
   routeImagePressed() {
+
+    var routeCoordinates;
+    if(this.props.savedRouteList) {
+      routesCoordinates= this.props.routeDetails.get("routeCoordinates");
+    }
+    else {
+      routesCoordinates = null
+    }
 
     this.props.navigator.push({
       title: "RouteMap",
       component: RouteMap,
       passProps: {
-        route_id: this.props.routeDetails.get('route_id')
+        route_id: this.props.routeDetails.get('route_id'),
+        //savedRouteList: this.props.savedRouteList,
+        routesCoordinates: this.props.routeDetails.get("routeCoordinates"),
       }
     });
+  };
+
+
+  _saveRoute() {
+
+    if(!this.props.savedRouteList) {
+
+      const {routeDetails} = this.props;
+      var routeCoordinates = [];
+
+      Store.getRouteCoordinates(routeDetails.get("route_id")).then((routeCoord) => {
+
+        var longitude, latitude, longitudeDelta, latitudeDelta;
+        var key = 0;
+        for (var i = 0, len = routeCoord.length; i < len; i++) {
+
+          coordObj = {};
+          longitude = routeCoord[i].get("longitude");
+          latitude = routeCoord[i].get("latitude");
+          coordObj = {longitude: longitude, latitude:latitude, latitudeDelta: 0, longitudeDelta: 0}
+          routeCoordinates.push(coordObj)
+        }
+      }, (reason) => {
+
+      })
+
+      var route = {
+        route_id: routeDetails.get('route_id'),
+        title: routeDetails.get('title'),
+        description: routeDetails.get('description'),
+        address: routeDetails.get('address'),
+        duration: routeDetails.get('duration'),
+        distance: routeDetails.get('distance'),
+        avg_speed: routeDetails.get('avg_speed'),
+        difficulty: routeDetails.get('difficulty'),
+        longitude: routeDetails.get('longitude'),
+        latitude: routeDetails.get('latitude'),
+        longitudeDelta: routeDetails.get('longitudeDelta'),
+        latitudeDelta: routeDetails.get('latitudeDelta'),
+        routeCoordinates: routeCoordinates
+      }
+      AsyncStorage.setItem('result', JSON.stringify(route), () => {
+        AsyncStorage.getItem('result', (err, result) => {
+          console.log("result", result);
+        });
+      });
+    }
+    else {
+      console.log("route already saved");
+    }
   };
 
 
@@ -77,7 +139,7 @@ class RouteDetails extends React.Component {
               <TouchableHighlight underlayColor={'#e7e7e7'} onPress={this.routeImagePressed.bind(this)}>
                 <Text style={styles.startButton}>Start Route</Text>
               </TouchableHighlight>
-              <TouchableHighlight underlayColor={'#e7e7e7'} onPress={this.routeImagePressed.bind(this)}>
+              <TouchableHighlight underlayColor={'#e7e7e7'} onPress={this._saveRoute.bind(this)}>
                 <Text style={styles.saveButton}>Save</Text>
               </TouchableHighlight>
             </View>
