@@ -83,6 +83,10 @@
             };
           });
         }, (error) => {
+          //console.log("erorororoororororororoor=====>", error[Object.keys(error)[0]]; // obj[Object.keys(obj)[0]]; //returns 'someVal'
+          //for (first in error) break;
+          //console.log("erorororoororororororoor=====>", first); // obj[Object.keys(obj)[0]]; //returns 'someVal'
+
           return REJECT(error);
         });
       });
@@ -181,18 +185,18 @@
     },
 
 
-    getRouteCoordinates: function() {
+    getRouteCoordinates: function(route_id) {
 
       return new Promise((RESOLVE, REJECT) => {
 
-        fetch("http://localhost/register_route.php?route=57",
+        fetch("http://localhost/register_route.php?route="+route_id,
         {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           }
         }).then((response) => {
-          //console.log("fekfenfkenkekn=======", response);
+          console.log("getRouteCoordinates=======>", response);
           response.json().then((routes) => {
 
             var routesArray = [];

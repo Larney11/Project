@@ -14,7 +14,6 @@ var MapView = require('react-native-maps');
 var RegisterRoute = require('./RegisterRoute.js');
 var RouteList = require('./RouteList.js');
 var Clock = require('./StopWatch.js');
-var CameraAction = require('./CameraAction.js')
 
 // Calculates the distance travelled
 // Calculates the shortest distance between two points on the earths surface
@@ -218,18 +217,6 @@ class RecordRouteMap extends Component {
   };
 
 
-  useCamera() {
-
-    var lastPos = this.state.region.lenght;
-    this.props.navigator.push({
-      title: "CameraAction",
-      component: CameraAction,
-      passProps: {
-      }
-    });
-  };
-
-
   // Calculates distance travelled
   calcDistance(newLatLng) {
 
@@ -283,16 +270,6 @@ class RecordRouteMap extends Component {
           />
         </MapView.Animated>
 
-        <View style={styles.topButtonGroup}>
-          <TouchableHighlight
-            underlayColor='#70db70'
-            onPress={this.useCamera.bind(this)}
-            >
-            <View style={styles.cameraButton}>
-              <Text>Camera</Text>
-            </View>
-          </TouchableHighlight>
-        </View>
         <View style={styles.bottomBar}>
 
           <View style={styles.bottomButtonGroup}>
@@ -344,19 +321,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-  },
-  topButtonGroup: {
-    position: 'absolute',
-    top: 100,
-    alignItems: 'center',
-  },
-  cameraButton: {
-    height: 70,
-    width: 70,
-    borderWidth: 2,
-    borderColor: 'black',
-    borderRadius: 5,
-    backgroundColor: 'white'
   },
   navBar: {
     backgroundColor: 'rgba(0,0,0,0.7)',
