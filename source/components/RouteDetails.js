@@ -13,12 +13,14 @@ import {
   TouchableHighlight,
   ScrollView,
   TouchableOpacity,
-  AsyncStorage
+  AsyncStorage,
+  AlertIOS
 } from 'react-native'
 
 var windowSize = Dimensions.get('window');
 var RouteMap = require('./RouteMap.js');
-var RouteMessages = require('./RouteMessages.js')
+var RouteMessages = require('./RouteMessages.js');
+var Store = require('../store/Store.js');
 
 
 class RouteDetails extends React.Component {
@@ -53,7 +55,7 @@ class RouteDetails extends React.Component {
       passProps: {
         route_id: this.props.routeDetails.get('route_id'),
         //savedRouteList: this.props.savedRouteList,
-        routesCoordinates: this.props.routeDetails.get("routeCoordinates"),
+        routeCoordinates: this.props.routeCoordinates,
       }
     });
   };
@@ -78,33 +80,58 @@ class RouteDetails extends React.Component {
           coordObj = {longitude: longitude, latitude:latitude, latitudeDelta: 0, longitudeDelta: 0}
           routeCoordinates.push(coordObj)
         }
-      }, (reason) => {
 
-      })
+        var route = {
+          route_id: routeDetails.get('route_id'),
+          title: routeDetails.get('title'),
+          description: routeDetails.get('description'),
+          address: routeDetails.get('address'),
+          duration: routeDetails.get('duration'),
+          distance: routeDetails.get('distance'),
+          avg_speed: routeDetails.get('avg_speed'),
+          difficulty: routeDetails.get('difficulty'),
+          longitude: routeDetails.get('longitude'),
+          latitude: routeDetails.get('latitude'),
+          longitudeDelta: routeDetails.get('longitudeDelta'),
+          latitudeDelta: routeDetails.get('latitudeDelta'),
+          routeCoordinates: routeCoordinates
+        }
 
-      var route = {
-        route_id: routeDetails.get('route_id'),
-        title: routeDetails.get('title'),
-        description: routeDetails.get('description'),
-        address: routeDetails.get('address'),
-        duration: routeDetails.get('duration'),
-        distance: routeDetails.get('distance'),
-        avg_speed: routeDetails.get('avg_speed'),
-        difficulty: routeDetails.get('difficulty'),
-        longitude: routeDetails.get('longitude'),
-        latitude: routeDetails.get('latitude'),
-        longitudeDelta: routeDetails.get('longitudeDelta'),
-        latitudeDelta: routeDetails.get('latitudeDelta'),
-        routeCoordinates: routeCoordinates
-      }
-      AsyncStorage.setItem('result', JSON.stringify(route), () => {
+        var savedRoutes;
         AsyncStorage.getItem('result', (err, result) => {
-          console.log("result", result);
-        });
+          if(result !== null){
+            savedRoutes = JSON.parse(result);
+          }
+          else {
+            savedRoutes = [];
+          }
+          savedRoutes.push(route);
+
+          var id_matches = 0;
+          for(var i=0; i < savedRoutes.length; i++) {
+
+            if(savedRoutes[i].route_id == route.route_id) {
+              id_matches ++;
+            }
+          }
+          if(id_matches > 1) {
+            AlertIOS.alert('Route Already saved', 'The route has already been saved');
+          }
+          else {
+            AsyncStorage.setItem('result', JSON.stringify(savedRoutes), () => {
+              AsyncStorage.getItem('result', (err, result) => {
+                console.log("result", JSON.parse(result));
+                AlertIOS.alert('Route saved', 'The route has been saved');
+              });
+            });
+          }
+        }, (reason) => {
+
+        })
       });
     }
     else {
-      console.log("route already saved");
+      AlertIOS.alert('Route Already saved', 'The route has already been saved');
     }
   };
 

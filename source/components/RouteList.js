@@ -94,8 +94,15 @@ class RouteList extends Component {
 
     this.setState({savedRouteList: true});
     AsyncStorage.getItem('result', (err, result) => {
-      var route = new Route(JSON.parse(result));
-      var routeArray = [route];
+      var routeResult = JSON.parse(result);
+      var routeArray = [];
+      var routeCoordinates = [];
+      var routeCoord;
+      for(var i=0; i < routeResult.length; i++) {
+
+        routeArray.push(new Route(routeResult[i]));
+      }
+
       this.setState({
         routesArray: routeArray,
         dataSource: this.state.dataSource.cloneWithRows(routeArray)
@@ -121,12 +128,24 @@ class RouteList extends Component {
 
     var route = this.state.routesArray[rowID];
     var savedRouteList = this.state.savedRouteList;
+    var routeCoordinates = null;
+    if(savedRouteList == true) {
+
+      var routeCoord = route.get("routeCoordinates");
+      routeCoordinates = [];
+      for(var i=0; i < routeCoord.length; i++) {
+
+        routeCoordinates.push(new Route(routeCoord[i]));
+      }
+    }
+
     this.props.navigator.push({
       title: "RouteDetails",
       component: RouteDetails,
       passProps: {
         routeDetails: route,
         savedRouteList: savedRouteList,
+        routeCoordinates: routeCoordinates
       }
     });
   };
