@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
+require('../dispatcher/AppDispatcher.js');
 
 
 class StopWatch extends Component {
@@ -26,20 +27,11 @@ class StopWatch extends Component {
 
   componentWillReceiveProps(newProps) {
 
-    if(!newProps.stopwatchFinish) {
-
-      const {changedPropsCount} = this.state;
-      if(changedPropsCount < 1) {
-        if(newProps.stopwatchStart) {
-          this.start();
-        }
-        else {
-          this.stop();
-        }
-      }
-      else {
-        this.setState({changedPropsCount: 0})
-      }
+    if(newProps.stopwatchStart) {
+      this.start();
+    }
+    else {
+      this.stop();
     }
   }
 
@@ -57,9 +49,14 @@ class StopWatch extends Component {
     if(this.interval) {
       clearInterval(this.interval);
       this.interval = null;
+      var time = this.formatTime();
+      if(this.props.recordingNewRoute) {
+        AppDispatcher.dispatch('setTime_RecordRouteMap', time);
+      }
+      else {
+        AppDispatcher.dispatch('setTime_RouteMap', time);
+      }
     }
-    this.setState({started: false, changedPropsCount: 1});
-    this.props.onChange(this.formatTime());
   }
 
   reset() {

@@ -14,6 +14,8 @@ var MapView = require('react-native-maps');
 var RegisterRoute = require('./RegisterRoute.js');
 var RouteList = require('./RouteList.js');
 var Clock = require('./StopWatch.js');
+var Store = require('../store/Store.js');
+require('../dispatcher/AppDispatcher.js');
 
 // Calculates the distance travelled
 // Calculates the shortest distance between two points on the earths surface
@@ -48,22 +50,18 @@ class RecordRouteMap extends Component {
       totalTime: null,
       stopUploadButton: null,
       displayStopButton: false,
+      recordingNewRoute: true
     }
     this.toggleStopwatch = this.toggleStopwatch.bind(this);
     this.followUserPosition = this.followUserPosition.bind(this);
+    this.setTime = this.setTime.bind(this);
     //this.startTracking = this.startTracking.bind(this);
-  }
-
-  onChange = (totalTime) => {
-
-    this.setState({ totalTime: totalTime});
   }
 
 
   watchID: ?number = null;
 
   componentDidMount() {
-
     navigator.geolocation.getCurrentPosition((position) => {
 
       var region = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0.0041,longitudeDelta: 0.0021};
@@ -85,6 +83,10 @@ class RecordRouteMap extends Component {
     navigator.geolocation.clearWatch(this.watchID);
   }
 
+  setTime(time) {
+    var totalTime = time;
+    this.setState({ totalTime: totalTime});
+  }
 
   followUserPosition() {
 
@@ -250,8 +252,9 @@ class RecordRouteMap extends Component {
     }
   };
 
-
   render() {
+
+    AppDispatcher.addEventListener('setTime_RecordRouteMap', this.setTime, this);
 
     const { totalTime } = this.state;
     return (
@@ -288,7 +291,7 @@ class RecordRouteMap extends Component {
                 stopwatchStart={this.state.stopwatchStart}
                 stopwatchReset={this.state.stopwatchReset}
                 stopwatchFinish={this.state.stopwatchFinish}
-                onChange={this.onChange}
+                recordingNewRoute={this.state.recordingNewRoute}
                 style={styles.clock}
               />
             </View>
