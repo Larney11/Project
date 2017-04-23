@@ -107,8 +107,8 @@
         form.append('height', formData.HeightCm);
         console.log("form", form);
 
-        fetch("http://localhost/users.php",
-        //fetch("http://trackmyroute.azurewebsites.net/users.php",
+        //fetch("http://localhost/users.php",
+        fetch("http://trackmyroute.azurewebsites.net/users.php",
         {
           method: 'POST',
           body: form
@@ -152,8 +152,8 @@
         form.append('difficulty', difficulty);
         form.append('routeCoordinates', jsonString);
 
-        //fetch("http://trackmyroute.azurewebsites.net/register_route.php",
-        fetch("http://localhost/register_route.php",
+        fetch("http://trackmyroute.azurewebsites.net/register_route.php",
+        //fetch("http://localhost/register_route.php",
         {
           method: 'POST',
           body: form
@@ -187,8 +187,8 @@
 
       return new Promise((RESOLVE, REJECT) => {
 
-        fetch("http://localhost/register_route.php?route_id=57",
-        //fetch("http://trackmyroute.azurewebsites.net/register_route.php?route_id=57",
+        //fetch("http://localhost/register_route.php?route_id=57",
+        fetch("http://trackmyroute.azurewebsites.net/register_route.php?route_id=57",
         {
           method: 'GET',
           headers: {
@@ -223,8 +223,8 @@
         form.append('messageBody', messageBody);
         form.append('datetime', datetime);
 
-        fetch("http://localhost/messages.php",
-        //fetch("http://trackmyroute.azurewebsites.net/messages.php",
+        //fetch("http://localhost/messages.php",
+        fetch("http://trackmyroute.azurewebsites.net/messages.php",
         {
           method: 'POST',
           body: form
@@ -254,8 +254,8 @@
 
       return new Promise((RESOLVE, REJECT) => {
 
-        fetch("http://localhost/messages.php?route_id="+route_id,
-        //fetch("http://trackmyroute.azurewebsites.net/messages.php?route_id="+route_id,
+        //fetch("http://localhost/messages.php?route_id="+route_id,
+        fetch("http://trackmyroute.azurewebsites.net/messages.php?route_id="+route_id,
         {
           method: 'GET',
           headers: {
@@ -283,8 +283,8 @@
 
       return new Promise((RESOLVE, REJECT) => {
 
-        //fetch("http://trackmyroute.azurewebsites.net/register_route.php?route="+route_id,
-        fetch("http://localhost/register_route.php?route="+route_id,
+        fetch("http://trackmyroute.azurewebsites.net/register_route.php?route="+route_id,
+        //fetch("http://localhost/register_route.php?route="+route_id,
         {
           method: 'GET',
           headers: {
