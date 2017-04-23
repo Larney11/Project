@@ -19,8 +19,6 @@ var RouteMap = require('./RouteMap.js');
 var RouteDetails = require('./RouteDetails.js');
 var Route = require('../class/Route.js')
 
-
-
 const { width, height } = Dimensions.get('window');
 import haversine from 'haversine'
 
@@ -65,6 +63,7 @@ class RouteList extends Component {
   _viewRoutesList() {
 
     this.setState({savedRouteList: false});
+
     Store.getRoutes().then((routesArray) => {
 
       var currentLocation = this.props.currentLocation;
@@ -284,10 +283,6 @@ var styles = StyleSheet.create({
     flexDirection: 'column',
   },
   text: {
-    //width: (width * 0.5),
-    //fontSize: 16,
-    //fontWeight: '600',
-    //color: '#ffffff',
   },
   subtext: {
 

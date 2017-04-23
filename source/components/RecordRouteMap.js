@@ -6,6 +6,7 @@ import {
   Text,
   Dimensions,
   TouchableHighlight,
+  AsyncStorage
 } from 'react-native'
 var TimerMixin = require('react-timer-mixin');
 import Geocoder from 'react-native-geocoder';
@@ -15,7 +16,11 @@ var RegisterRoute = require('./RegisterRoute.js');
 var RouteList = require('./RouteList.js');
 var Clock = require('./StopWatch.js');
 var Store = require('../store/Store.js');
+var RegisterUser = require('./RegisterUser.js');
 require('../dispatcher/AppDispatcher.js');
+
+var Auth0Lock = require('react-native-lock');
+var lock = new Auth0Lock({clientId: "YVxlRSk3KdKTpsx6pAOGNHMP3L8mcPNl", domain: "trackmyroute.eu.auth0.com"});
 
 // Calculates the distance travelled
 // Calculates the shortest distance between two points on the earths surface
@@ -50,11 +55,13 @@ class RecordRouteMap extends Component {
       totalTime: '0',
       stopUploadButton: null,
       displayStopButton: false,
-      recordingNewRoute: true
+      recordingNewRoute: true,
+      moreButtonOpen: null
     }
     this.toggleStopwatch = this.toggleStopwatch.bind(this);
     this.followUserPosition = this.followUserPosition.bind(this);
     this.setTime = this.setTime.bind(this);
+    this.registerUser = this.registerUser.bind(this);
     //this.startTracking = this.startTracking.bind(this);
   }
 
@@ -62,6 +69,9 @@ class RecordRouteMap extends Component {
   watchID: ?number = null;
 
   componentDidMount() {
+
+    this.login();
+
     navigator.geolocation.getCurrentPosition((position) => {
 
       var region = {longitude:position.coords.longitude,latitude:position.coords.latitude,latitudeDelta: 0.0041,longitudeDelta: 0.0021};
@@ -94,9 +104,68 @@ class RecordRouteMap extends Component {
       totalTime: null,
       stopUploadButton: null,
       displayStopButton: false,
-      recordingNewRoute: true
+      recordingNewRoute: true,
+      email: ""
     })
   }
+
+
+  login() {
+
+    var loggedIn = "false";
+    AsyncStorage.getItem('loggedIn', (err, result) => {
+      console.log("loggedIn", loggedIn);
+
+      if(result !== null){
+        loggedIn = result;
+      }
+      if(loggedIn == "false") {
+        lock.show({}, (err, profile, token) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          console.log("profile", profile);
+          console.log("profile", profile.email);
+          var profile = profile.email;
+          if(typeof profile !== "undefined") {
+            this.setState({email: profile});
+          }
+        });
+        console.log("before");
+
+        AsyncStorage.setItem('loggedIn', "true", () => {
+          AsyncStorage.getItem('loggedIn', (err, result) => {
+            console.log("loggedInp", result);
+          });
+        });
+        console.log('Logged in with Auth0!');
+        this.registerUser();
+      }
+    });
+  }
+
+
+  logout() {
+    AsyncStorage.setItem('loggedIn', "false", () => {
+      AsyncStorage.getItem('loggedIn', (err, result) => {
+        console.log("loggedOut result", result);
+        this.login();
+      });
+    });
+  }
+
+  registerUser() {
+    this.props.navigator.push({
+      title: "RegisterUser",
+      component: RegisterUser,
+      passProps: {
+        email: this.state.email
+      }
+    });
+  }
+
+
 
   setTime(time) {
     var totalTime = time;
@@ -187,6 +256,26 @@ class RecordRouteMap extends Component {
       this.setState({stopUploadButton: stopUploadButton});
   }
 
+  _onPressMoreButton() {
+    var moreMenu;
+    if(this.state.moreButtonOpen == null) {
+      moreMenu =
+      <TouchableHighlight
+        onPress={this.logout.bind(this)}
+        underlayColor={'#b3b3b3'}
+        >
+        <View style={styles.moreMenu}>
+          <Text>Log out</Text>
+        </View>
+      </TouchableHighlight>;
+    }
+    else {
+      moreMenu = null;
+    }
+
+      this.setState({moreButtonOpen: moreMenu});
+  }
+
 
   onSubmitRoutePressed() {
 
@@ -207,6 +296,15 @@ class RecordRouteMap extends Component {
     }
     var avgSpeed = totalSpeed / speedArrayLength;
 
+    var passProps = {
+      routeCoordinates: this.state.routeCoordinates,
+      distanceTravelled: this.state.distanceTravelled.toFixed(2),
+      avgSpeed: avgSpeed.toFixed(2),
+      duration: totalTime.slice(0, 8),
+      address: this.state.routeAddress
+    }
+
+
     this.props.navigator.push({
       title: "RegisterRoute",
       component: RegisterRoute,
@@ -218,6 +316,7 @@ class RecordRouteMap extends Component {
         address: this.state.routeAddress
       }
     });
+
   };
 
 
@@ -311,6 +410,7 @@ class RecordRouteMap extends Component {
               />
             </View>
           </View>
+          {this.state.moreButtonOpen}
           <View style={styles.menuBar}>
             <TouchableHighlight
               underlayColor='#70db70'
@@ -323,9 +423,14 @@ class RecordRouteMap extends Component {
             <View style={styles.menuMiddleButton}>
               <Text>Profile</Text>
             </View>
-            <View style={styles.menuButton}>
-              <Text>More</Text>
-            </View>
+            <TouchableHighlight
+              underlayColor='#70db70'
+              style={styles.buttonContainer}
+              onPress={this._onPressMoreButton.bind(this)}>
+              <View style={styles.menuButton}>
+                <Text>More</Text>
+              </View>
+            </TouchableHighlight>
           </View>
         </View>
       </View>
@@ -448,39 +553,19 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderColor: 'black',
     paddingTop: 15
+  },
+  moreMenu: {
+    position: 'absolute',
+    bottom: 29,
+    right: 0,
+    width: (width /3 ),
+    height: 40,
+    backgroundColor: 'white',
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+
   }
 });
 
 module.exports = RecordRouteMap;
-
-/*
-2017-01-19 14:17:46.165 [info][tid:com.facebook.react.JavaScript]
-'=======lastPosition',
-'{
-   "coords":{
-      "speed":5.8,
-      "longitude":-122.03036811,
-      "latitude":37.33045921,
-      "accuracy":5,
-      "heading":103.28,
-      "altitude":0,
-      "altitudeAccuracy":-1
-   },
-   "timestamp":1484835466161.885
-}'
-
-2017-01-19 14:20:15.434 [info][tid:com.facebook.react.JavaScript]
-'=======lastPosition',
-'{
-   "coords":{
-      "speed":5.05,
-      "longitude":-122.02355883,
-      "latitude":37.33292302,
-      "accuracy":10,
-      "heading":348.03,
-      "altitude":0,
-      "altitudeAccuracy":-1
-   },
-   "timestamp":1484835615429.096
-}'
-*/

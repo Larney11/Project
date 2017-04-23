@@ -49,6 +49,93 @@
     },
 
 
+    ping(token) {
+
+      return new Promise((RESOLVE, REJECT) => {
+
+        //fetch("http://localhost:3001/api/private/ping",
+      //fetch("http://trackmyroute.azurewebsites.net/api/private/ping",
+      fetch("http://localhost:3001/?route=4",
+      //fetch("http://trackmyroute.azurewebsites.net/?route=4",
+      //fetch("http://trackmyroute.azurewebsites.net/api/public/ping",
+      //fetch("http://trackmyroute.azurewebsites.net/index.php/?route=4",
+        {
+          method: 'GET',
+          headers: {
+            //'Origin': '*',
+            //'Access-Control-Request-Method': 'GET',
+            //'Access-Control-Request-Headers': 'Authorization',
+            'authorization': token
+          },
+          //mode: 'cors'
+        }).then((response) => {
+          console.log("response",response);
+
+          response.json().then((respObj) => {
+
+            if(respObj.status == 404) {
+
+              return REJECT(false);
+            }
+            else if(respObj.status == 200) {
+
+              return RESOLVE(true);
+            };
+          });
+        }, (error) => {
+          return REJECT(error);
+        });
+      });
+
+    },
+
+
+
+    postUserDetails(formData) {
+
+      return new Promise((RESOLVE, REJECT) => {
+        console.log("formData", formData);
+
+
+        var form = new FormData();
+        form.append('username', formData.Username);
+        form.append('email', formData.email);
+        form.append('name', formData.Name);
+        form.append('dateOfBirth', formData.DateOfBirth);
+        form.append('gender', formData.Gender);
+        form.append('Weight', formData.WeightKg);
+        form.append('height', formData.HeightCm);
+        console.log("form", form);
+
+        fetch("http://localhost/users.php",
+        //fetch("http://trackmyroute.azurewebsites.net/users.php",
+        {
+          method: 'POST',
+          body: form
+        }).then((response) => {
+
+          console.log("response", response);
+
+
+          response.json().then((respObj) => {
+
+
+            if(respObj.status == 404) {
+
+              return REJECT(false);
+            }
+            else if(respObj.status == 200) {
+
+              return RESOLVE(true);
+            };
+          });
+        }, (error) => {
+          return REJECT(error);
+        });
+      });
+    },
+
+
     uploadRoute: function(formData, routeCoordinates, difficulty) {
       return new Promise((RESOLVE, REJECT) => {
 
@@ -65,11 +152,14 @@
         form.append('difficulty', difficulty);
         form.append('routeCoordinates', jsonString);
 
+        //fetch("http://trackmyroute.azurewebsites.net/register_route.php",
         fetch("http://localhost/register_route.php",
         {
           method: 'POST',
           body: form
         }).then((response) => {
+          console.log("respObj", response);
+
 
           response.json().then((respObj) => {
 
@@ -98,12 +188,14 @@
       return new Promise((RESOLVE, REJECT) => {
 
         fetch("http://localhost/register_route.php?route_id=57",
+        //fetch("http://trackmyroute.azurewebsites.net/register_route.php?route_id=57",
         {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           }
         }).then((response) => {
+          console.log("respObj", response);
 
           response.json().then((routes) => {
 
@@ -132,6 +224,7 @@
         form.append('datetime', datetime);
 
         fetch("http://localhost/messages.php",
+        //fetch("http://trackmyroute.azurewebsites.net/messages.php",
         {
           method: 'POST',
           body: form
@@ -162,6 +255,7 @@
       return new Promise((RESOLVE, REJECT) => {
 
         fetch("http://localhost/messages.php?route_id="+route_id,
+        //fetch("http://trackmyroute.azurewebsites.net/messages.php?route_id="+route_id,
         {
           method: 'GET',
           headers: {
@@ -189,6 +283,7 @@
 
       return new Promise((RESOLVE, REJECT) => {
 
+        //fetch("http://trackmyroute.azurewebsites.net/register_route.php?route="+route_id,
         fetch("http://localhost/register_route.php?route="+route_id,
         {
           method: 'GET',
@@ -196,7 +291,7 @@
             'Content-Type': 'application/json',
           }
         }).then((response) => {
-          console.log("getRouteCoordinates=======>", response);
+          //console.log("getRouteCoordinates=======>", response);
           response.json().then((routes) => {
 
             var routesArray = [];
@@ -204,7 +299,7 @@
 
               routesArray.push(new Route(routes[i]));
             };
-            console.log(routesArray);
+            //console.log(routesArray);
             return RESOLVE(routesArray);
           });
         }, (error) => {

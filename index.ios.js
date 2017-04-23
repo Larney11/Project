@@ -4,10 +4,12 @@
 
  var React = require('react');
  var ReactNative = require('react-native');
- var Login = require('./source/components/Login.js');
  var RecordRouteMap = require('./source/components/RecordRouteMap.js');
  var RouteList = require('./source/components/RouteList.js');
  var RouteMap = require('./source/components/RouteMap.js');
+ var RegisterUser = require('./source/components/RegisterUser.js');
+ //var MainScreen = require('./source/components/MainScreen.js');
+
 
 class Project extends React.Component {
   render() {

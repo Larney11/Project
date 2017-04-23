@@ -1,3 +1,9 @@
+/*
+* Author: michaeljstevens
+* Reference: https://github.com/michaeljstevens/react-native-stopwatch-timer/blob/master/lib/stopwatch.js
+* Usage: Modified
+*
+*/
 import React, {Component} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 require('../dispatcher/AppDispatcher.js');
@@ -33,6 +39,9 @@ class StopWatch extends Component {
     else {
       this.stop();
     }
+    if(newProps.stopwatchReset){
+      this.reset;
+    }
   }
 
   start() {
@@ -50,12 +59,7 @@ class StopWatch extends Component {
       clearInterval(this.interval);
       this.interval = null;
       var time = this.formatTime();
-      if(this.props.recordingNewRoute) {
-        AppDispatcher.dispatch('setTime_RecordRouteMap', time);
-      }
-      else {
         AppDispatcher.dispatch('setTime_RouteMap', time);
-      }
     }
   }
 
@@ -80,15 +84,9 @@ class StopWatch extends Component {
     seconds = seconds - (minutes * 60);
     minutes = minutes - (hours * 60);
     let formatted;
-    //if(this.props.msecs) {
       formatted = `${hours < 10 ? 0 : ""}${hours}:${minutes < 10 ?
         0 : ""}${minutes}:${seconds < 10 ?
           0 : ""}${seconds}:${msecs}`;
-    // Without milliseconds
-    /*} else {
-      formatted = `${hours < 10 ? 0 : ""}${hours}:${minutes < 10 ?
-        0 : ""}${minutes}:${seconds < 10 ? 0 : ""}${seconds}`;
-    }*/
     return formatted;
   }
 
