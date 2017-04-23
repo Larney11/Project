@@ -47,7 +47,7 @@ class RecordRouteMap extends Component {
       coordinateCount: 0,
       routeAddress: null,
       speedArray: [],
-      totalTime: null,
+      totalTime: '0',
       stopUploadButton: null,
       displayStopButton: false,
       recordingNewRoute: true
@@ -73,14 +73,29 @@ class RecordRouteMap extends Component {
     );
   };
 
-  componentWillUnmount() {
-
-    this.stopTracking();
-  }
 
   componentDidUnMount() {
 
+    this.setState({stopwatchReset: true});
     navigator.geolocation.clearWatch(this.watchID);
+    this.stopTracking();
+    this.setState({
+      routeCoordinates: [],
+      distanceTravelled: 0,
+      prevLatLng: {},
+      stopwatchStart: false,
+      stopwatchFinish: false,
+      stopwatchReset: false,
+      displayStopwatch: false,
+      intervalId: null,
+      coordinateCount: 0,
+      routeAddress: null,
+      speedArray: [],
+      totalTime: null,
+      stopUploadButton: null,
+      displayStopButton: false,
+      recordingNewRoute: true
+    })
   }
 
   setTime(time) {
