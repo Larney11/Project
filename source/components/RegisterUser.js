@@ -10,7 +10,8 @@ import {
   Dimensions,
   TouchableHighlight,
   PickerIOS,
-  ScrollView
+  ScrollView,
+  AsyncStorage
 
 } from 'react-native'
 
@@ -31,7 +32,13 @@ var Person = t.struct({
 });
 
 
-var options = {};
+var options = {
+  fields: {
+    email: {
+      editable: false
+    },
+  }
+};
 
 
 class RegisterUser extends Component {
@@ -42,13 +49,13 @@ class RegisterUser extends Component {
     this.state = {
       selectedDifficulty: 'Moderate',
       value: {
-        Username: '',
+        Username: this.props.username,
         email: this.props.email,
         Name: '',
         DateOfBirth: '',
         Gender: '',
-        WeightKg: '',
-        HeightCm: '',
+        WeightKg: 0,
+        HeightCm: 0,
       },
       options: options
     }
@@ -60,6 +67,7 @@ class RegisterUser extends Component {
     // give focus to textbox
     this.refs.form.getComponent('Username').refs.input.focus();
   };
+
 
   onChange(value) {
 
@@ -73,7 +81,9 @@ class RegisterUser extends Component {
     var value = this.refs.form.getValue();
     // if validation fails, value will be null
     if (value) {
-      Store.postUserDetails(value).then((success) => {
+
+      Store.postUpdateUserDetails(value).then((success) => {
+        AsyncStorage.setItem('registered', "true", () => {});
 
       }, (reason) => {
 

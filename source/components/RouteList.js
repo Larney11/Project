@@ -93,15 +93,16 @@ class RouteList extends Component {
 
     this.setState({savedRouteList: true});
     AsyncStorage.getItem('result', (err, result) => {
-      var routeResult = JSON.parse(result);
       var routeArray = [];
-      var routeCoordinates = [];
-      var routeCoord;
-      for(var i=0; i < routeResult.length; i++) {
+      if(result) {
+        var routeResult = JSON.parse(result);
+        var routeCoordinates = [];
+        var routeCoord;
+        for(var i=0; i < routeResult.length; i++) {
 
-        routeArray.push(new Route(routeResult[i]));
+          routeArray.push(new Route(routeResult[i]));
+        }
       }
-
       this.setState({
         routesArray: routeArray,
         dataSource: this.state.dataSource.cloneWithRows(routeArray)

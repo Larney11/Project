@@ -10,7 +10,8 @@ import {
   Dimensions,
   TouchableHighlight,
   PickerIOS,
-  ScrollView
+  ScrollView,
+  AsyncStorage
 
 } from 'react-native'
 
@@ -104,11 +105,18 @@ class RegisterRoute extends Component {
     var value = this.refs.form.getValue();
     // if validation fails, value will be null
     if (value) {
-      Store.uploadRoute(value, this.props.routeCoordinates, this.state.selectedDifficulty).then((success) => {
+      AsyncStorage.getItem('email', (err, result) => {
+        var email = result;
+        AsyncStorage.getItem('username', (err, result) => {
 
-      }, (reason) => {
+          var username = result;
+          Store.uploadRoute(email, username, value, this.props.routeCoordinates, this.state.selectedDifficulty).then((success) => {
 
-        console.log("onPress() uploadRoute:", reason);
+          }, (reason) => {
+
+            console.log("onPress() uploadRoute:", reason);
+          });
+        });
       });
     }
   };

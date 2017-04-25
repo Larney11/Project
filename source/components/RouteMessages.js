@@ -12,7 +12,8 @@ import {
   Image,
   Dimensions,
   TouchableHighlight,
-  Switch
+  Switch,
+  AsyncStorage
 } from 'react-native'
 
 var Store = require('./../store/Store.js');
@@ -31,12 +32,11 @@ class RouteMessages extends Component {
     this._pressRow = this._pressRow.bind(this);
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
-      routesArray: null,
+      routesArray: [],
       distanceArray: [],
       dataSource: ds.cloneWithRows([]),
       selectedRowID: null,
       messageText: "",
-      subscribedToMessages: true,
     };
   };
 
@@ -44,10 +44,14 @@ class RouteMessages extends Component {
   componentDidMount() {
 
     Store.getRouteMessages(this.props.route_id).then((messages) => {
+
+      var routesArray = this.state.routesArray.concat(messages);
       this.setState({
-        dataSource: this.state.dataSource.cloneWithRows(messages)
+        routesArray: routesArray,
+        dataSource: this.state.dataSource.cloneWithRows(routesArray)
       });
     },(error) => {
+      console.log("RouteMessages.getRouteMessages()", error);
 
     });
   };
@@ -66,20 +70,26 @@ class RouteMessages extends Component {
 
     var message = this.state.routesArray;
     var route_id = this.props.route_id;
-    var username = "Lar";
-    var datetime = "01/01/99 01:20";
+    //var username = "Lar";
+    var datetime = "01/05/2017 01:20";
     var messageBody = this.state.messageText;
 
-    Store.postRouteMessage(route_id, username, messageBody, datetime).then((response) => {
 
-      message.push(new Message({"message_id":route_id, "username":username, "text":messageBody, "datetime": datetime}));
-      this.setState({
-        dataSource: this.state.dataSource.cloneWithRows(message)
+    AsyncStorage.getItem('username', (err, result) => {
+
+      var username = result;
+      Store.postRouteMessage(route_id, username, messageBody, datetime).then((response) => {
+
+        message.push(new Message({route_id: this.props.route_id, username: username, message_body: this.state.messageText, message_datetime: "01/01/99 01:20"}));
+        this.setState({
+          routesArray: message,
+          dataSource: this.state.dataSource.cloneWithRows(message)
+        });
+        this.refs["_textInput"].clear(0);
+
+      },(error) => {
+        console.log("Error@RouteMessage._sendMessage", error);
       });
-      this.refs["_textInput"].clear(0);
-
-    },(error) => {
-      console.log("Error@RouteMessage._sendMessage", error);
     });
   };
 
@@ -132,14 +142,6 @@ class RouteMessages extends Component {
 
       return (
         <View style={styles.container}>
-          <View style={styles.subscribeContainer}>
-            <Text>Subscribe</Text>
-            <Switch
-              onValueChange={(value) => this.setState({subscribedToMessages: value})}
-              style={{marginBottom: 10}}
-              value={this.state.subscribedToMessages}
-            />
-          </View>
           <ListView
             dataSource={this.state.dataSource}
             renderRow={this._renderRow.bind(this)}

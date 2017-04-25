@@ -22,7 +22,6 @@ var RouteMap = require('./RouteMap.js');
 var RouteMessages = require('./RouteMessages.js');
 var Store = require('../store/Store.js');
 
-
 class RouteDetails extends React.Component {
 
   constructor(props) {
@@ -32,7 +31,6 @@ class RouteDetails extends React.Component {
       displayMessages: false,
     }
   };
-
 
   componentDidMount() {
 
@@ -59,7 +57,6 @@ class RouteDetails extends React.Component {
       }
     });
   };
-
 
   _saveRoute() {
 

@@ -12,64 +12,34 @@
 
   var Route = require('../class/Route.js')
   var Message = require('../class/Message.js')
+  var config = require('../../config.json')
 
   var Store = function() {};
 
   module.exports = {
 
-    login: function(username, password) {
+    postUserDetails(formData) {
 
       return new Promise((RESOLVE, REJECT) => {
 
         var form = new FormData();
-        form.append('username', 'Lar');
-        form.append('password', '1234');
+        form.append('username', formData.Username);
+        form.append('email', formData.email);
+        form.append('name', "");
+        form.append('dateOfBirth', "");
+        form.append('gender', "");
+        form.append('Weight', 0);
+        form.append('height', 0);
+        console.log("form", form);
 
-        fetch("http://localhost/login.php",
+        //fetch("http://localhost/users.php",
+        fetch(config.hostURL+"/users.php",
         {
           method: 'POST',
           body: form
         }).then((response) => {
 
-          response.json().then((respObj) => {
-
-            if(respObj.status == 404) {
-
-              return REJECT(false);
-            }
-            else if(respObj.status == 200){
-
-              return RESOLVE(true);
-            };
-          });
-        }, (error) =>{
-          return REJECT(error);
-        });
-      });
-    },
-
-
-    ping(token) {
-
-      return new Promise((RESOLVE, REJECT) => {
-
-        //fetch("http://localhost:3001/api/private/ping",
-      //fetch("http://trackmyroute.azurewebsites.net/api/private/ping",
-      fetch("http://localhost:3001/?route=4",
-      //fetch("http://trackmyroute.azurewebsites.net/?route=4",
-      //fetch("http://trackmyroute.azurewebsites.net/api/public/ping",
-      //fetch("http://trackmyroute.azurewebsites.net/index.php/?route=4",
-        {
-          method: 'GET',
-          headers: {
-            //'Origin': '*',
-            //'Access-Control-Request-Method': 'GET',
-            //'Access-Control-Request-Headers': 'Authorization',
-            'authorization': token
-          },
-          //mode: 'cors'
-        }).then((response) => {
-          console.log("response",response);
+          console.log("response", response);
 
           response.json().then((respObj) => {
 
@@ -86,16 +56,12 @@
           return REJECT(error);
         });
       });
-
     },
 
 
-
-    postUserDetails(formData) {
+    postUpdateUserDetails(formData) {
 
       return new Promise((RESOLVE, REJECT) => {
-        console.log("formData", formData);
-
 
         var form = new FormData();
         form.append('username', formData.Username);
@@ -107,15 +73,13 @@
         form.append('height', formData.HeightCm);
         console.log("form", form);
 
-        //fetch("http://localhost/users.php",
-        fetch("http://trackmyroute.azurewebsites.net/users.php",
+        fetch(config.hostURL+"/updateUser.php",
         {
           method: 'POST',
           body: form
         }).then((response) => {
 
           console.log("response", response);
-
 
           response.json().then((respObj) => {
 
@@ -136,13 +100,17 @@
     },
 
 
-    uploadRoute: function(formData, routeCoordinates, difficulty) {
+    uploadRoute: function(email, username, formData, routeCoordinates, difficulty) {
       return new Promise((RESOLVE, REJECT) => {
+
+        console.log("email---------->", email);
+        console.log("email---------->", username);
 
         var jsonString = JSON.stringify(routeCoordinates);
 
         var form = new FormData();
-        form.append('username', 'Lar');
+        form.append('email', email);
+        form.append('username', username);
         form.append('title', formData.Title);
         form.append('description', formData.Description);
         form.append('address', formData.Address);
@@ -152,7 +120,7 @@
         form.append('difficulty', difficulty);
         form.append('routeCoordinates', jsonString);
 
-        fetch("http://trackmyroute.azurewebsites.net/register_route.php",
+        fetch(config.hostURL+"/register_route.php",
         //fetch("http://localhost/register_route.php",
         {
           method: 'POST',
@@ -173,9 +141,6 @@
             };
           });
         }, (error) => {
-          //console.log("erorororoororororororoor=====>", error[Object.keys(error)[0]]; // obj[Object.keys(obj)[0]]; //returns 'someVal'
-          //for (first in error) break;
-          //console.log("erorororoororororororoor=====>", first); // obj[Object.keys(obj)[0]]; //returns 'someVal'
 
           return REJECT(error);
         });
@@ -187,17 +152,16 @@
 
       return new Promise((RESOLVE, REJECT) => {
 
-        //fetch("http://localhost/register_route.php?route_id=57",
-        fetch("http://trackmyroute.azurewebsites.net/register_route.php?route_id=57",
+        fetch(config.hostURL+"/register_route.php?route_id=57",
         {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           }
         }).then((response) => {
-          console.log("respObj", response);
 
           response.json().then((routes) => {
+            console.log("getRoutes()routes", routes);
 
             var routesArray = [];
             for (var i = 0, len = routes.length; i < len; i++) {
@@ -213,6 +177,37 @@
       });
     },
 
+    getRouteCoordinates: function(route_id) {
+
+      return new Promise((RESOLVE, REJECT) => {
+
+        //fetch("http://trackmyroute.azurewebsites.net/register_route.php?route="+route_id,
+        fetch(config.hostURL+"/register_route.php?route="+route_id,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }).then((response) => {
+          //console.log("getRouteCoordinates=======>", response);
+          response.json().then((routes) => {
+
+            var routesArray = [];
+            for (var i = 0, len = routes.length; i < len; i++) {
+
+              routesArray.push(new Route(routes[i]));
+            };
+            //console.log(routesArray);
+            return RESOLVE(routesArray);
+          });
+        }, (error) => {
+
+          return REJECT(error);
+        });
+      });
+    },
+
+
 
     postRouteMessage: function(route_id, username, messageBody, datetime) {
       return new Promise((RESOLVE, REJECT) => {
@@ -224,12 +219,12 @@
         form.append('datetime', datetime);
 
         //fetch("http://localhost/messages.php",
-        fetch("http://trackmyroute.azurewebsites.net/messages.php",
+        fetch(config.hostURL+"/messages.php",
         {
           method: 'POST',
           body: form
         }).then((response) => {
-          console.log("respObj", response);
+          //console.log("respObj", response);
 
           response.json().then((respObj) => {
 
@@ -255,13 +250,14 @@
       return new Promise((RESOLVE, REJECT) => {
 
         //fetch("http://localhost/messages.php?route_id="+route_id,
-        fetch("http://trackmyroute.azurewebsites.net/messages.php?route_id="+route_id,
+        fetch(config.hostURL+"/messages.php?route_id="+route_id,
         {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           }
         }).then((response) => {
+          //console.log("getRouteMessages=======>response", response);
 
           response.json().then((messages) => {
 
@@ -279,35 +275,6 @@
     },
 
 
-    getRouteCoordinates: function(route_id) {
-
-      return new Promise((RESOLVE, REJECT) => {
-
-        fetch("http://trackmyroute.azurewebsites.net/register_route.php?route="+route_id,
-        //fetch("http://localhost/register_route.php?route="+route_id,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }).then((response) => {
-          //console.log("getRouteCoordinates=======>", response);
-          response.json().then((routes) => {
-
-            var routesArray = [];
-            for (var i = 0, len = routes.length; i < len; i++) {
-
-              routesArray.push(new Route(routes[i]));
-            };
-            //console.log(routesArray);
-            return RESOLVE(routesArray);
-          });
-        }, (error) => {
-
-          return REJECT(error);
-        });
-      });
-    },
 };
 
 })(typeof window === 'undefined' ? this : window);

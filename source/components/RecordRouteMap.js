@@ -17,6 +17,8 @@ var RouteList = require('./RouteList.js');
 var Clock = require('./StopWatch.js');
 var Store = require('../store/Store.js');
 var RegisterUser = require('./RegisterUser.js');
+var config = require('../../config.json')
+
 require('../dispatcher/AppDispatcher.js');
 
 var Auth0Lock = require('react-native-lock');
@@ -56,7 +58,9 @@ class RecordRouteMap extends Component {
       stopUploadButton: null,
       displayStopButton: false,
       recordingNewRoute: true,
-      moreButtonOpen: null
+      moreButtonOpen: null,
+      email: "",
+      username: "",
     }
     this.toggleStopwatch = this.toggleStopwatch.bind(this);
     this.followUserPosition = this.followUserPosition.bind(this);
@@ -105,19 +109,24 @@ class RecordRouteMap extends Component {
       stopUploadButton: null,
       displayStopButton: false,
       recordingNewRoute: true,
-      email: ""
+      email: "",
+      username: "",
     })
   }
 
 
   login() {
 
-    var loggedIn = "false";
+    var loggedIn;
     AsyncStorage.getItem('loggedIn', (err, result) => {
-      console.log("loggedIn", loggedIn);
+      console.log("loggedIn==>result", result);
 
       if(result !== null){
         loggedIn = result;
+        console.log("if(result !== null){", result);
+      }
+      else {
+        loggedIn = "false";
       }
       if(loggedIn == "false") {
         lock.show({}, (err, profile, token) => {
@@ -125,28 +134,80 @@ class RecordRouteMap extends Component {
             console.log(err);
             return;
           }
-          console.log("profile", profile);
-          console.log("profile", profile.email);
-          var profile = profile.email;
-          if(typeof profile !== "undefined") {
-            this.setState({email: profile});
+          else {
+
+            var email;
+            var username;
+            var loginType = profile.identities[0].provider;
+            if(loginType == 'facebook') {
+
+              this.setState({email: profile.email, username: profile.nickname});
+            }
+            else {
+
+              var email = profile.email;
+              var username = profile.nickname;
+              AsyncStorage.getItem('email', (err, result) => {
+                if(result !== null) {
+                  if(result !== email) {
+                    AsyncStorage.setItem('registered', "false", () => { console.log("jkjkjj3")});
+                    AsyncStorage.setItem('username', "username", () => { console.log("jkjkjj3")});
+                    AsyncStorage.setItem('email', "email", () => { console.log("jkjkjj3")});
+                  }
+                }
+              });
+
+
+              if(typeof email !== "undefined") {
+                this.setState({email: email});
+              }
+              if(typeof username !== "undefined") {
+                this.setState({username: username});
+              }
+            }
+            AsyncStorage.setItem('loggedIn', "true", () => {});
+
+            AsyncStorage.getItem('registered', (err, result) => {
+
+              if(result == null || result == "false") {
+
+                Store.postUserDetails({email: email, username: username}).then((success) => {
+
+                  AsyncStorage.setItem('username', username, () => {
+
+                    AsyncStorage.setItem('email', email, () => { console.log()});
+                  });
+
+
+                  AsyncStorage.setItem('registered', "true", () => {});
+                }, (reason) => { console.log("", reason); });
+              }
+            });
+
+            //    postUserDetails(formData) {
+            AsyncStorage.getItem('registered', (err, result) => {
+              if(result == null || result == "false") {
+
+                this.registerUser();
+              }
+            });
           }
         });
-        console.log("before");
-
-        AsyncStorage.setItem('loggedIn', "true", () => {
-          AsyncStorage.getItem('loggedIn', (err, result) => {
-            console.log("loggedInp", result);
-          });
-        });
-        console.log('Logged in with Auth0!');
-        this.registerUser();
+      }
+      else {
+        console.log("Not logged in", loggedIn)
       }
     });
   }
 
 
   logout() {
+/*
+    AsyncStorage.setItem('registered', "false", () => {});
+    AsyncStorage.setItem('loggedIn', "false", () => {});
+    AsyncStorage.setItem('email', "", () => {});
+    AsyncStorage.setItem('username', "", () => {});
+*/
     AsyncStorage.setItem('loggedIn', "false", () => {
       AsyncStorage.getItem('loggedIn', (err, result) => {
         console.log("loggedOut result", result);
@@ -160,7 +221,8 @@ class RecordRouteMap extends Component {
       title: "RegisterUser",
       component: RegisterUser,
       passProps: {
-        email: this.state.email
+        email: this.state.email,
+        username: this.state.username,
       }
     });
   }
